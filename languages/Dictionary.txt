@@ -1,0 +1,24 @@
+{
+"Czech":{
+"Pytlik":"Pytlík",
+"WelcomeText1":"Díky technice už všude byl,",
+"WelcomeText2":"teï už jenom vedoucím radí,",
+"WelcomeText3":"aby je od porad osvobodil,",
+"WelcomeText4":"neb ví, že staršnì moc jim vadí.",
+"Login":"Login",
+"Registrace":"Registrace",
+"Username":"Uživatelské jméno",
+"Password":"Heslo",
+"Forgot":"Zapomenuto",
+"Login":"Pøihlásit se",
+"Registration":"Založit úèet",
+"Email":"Email",
+"FirstName":"Køestní jméno",
+"SecondName":"Pøíjmení",
+"Birthdate":"Rok narození",
+"Confirm":"Potvrdit",
+"Projects":"Projekty",
+"Info":"Info",
+"RegiHref":"http://127.0.0.1:8000/registration"
+}
+}

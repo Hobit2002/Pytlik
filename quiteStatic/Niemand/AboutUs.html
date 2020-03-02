@@ -1,0 +1,20 @@
+{% extends "frpg.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{%static 'admin/css/forms.css' %}">
+<div class="form-row">
+    <form action="login"><button><p>{{Login}}</p></button></form>
+    <form action="registration"><button><p>{{Registrace}}</p></button></form>
+</div>
+<p><h1>{{ Pytlik }}</h1></p>
+{{WelcomeText1}}
+<br>
+{{WelcomeText2}}
+<br>
+{{WelcomeText3}}
+<br>
+{{WelcomeText4}}
+<br>
+<img src="{% static 'admin/img/pytlik.jpeg' %}" alt="Wish you could see how beautiful he is.">
+
+ {% endblock %}

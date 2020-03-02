@@ -1,0 +1,39 @@
+﻿
+
+<!DOCTYPE html>
+<!-- saved from url=(0079)https://colorlib.com/etc/lf/Login_v12/index.html?username=krorkurol&pass=gitorg -->
+<html lang="en">
+{% load static %}
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{{Pytlik}}</title>
+
+</head>
+<body data-gr-c-s-loaded="true">
+
+                <form class="login100-form validate-form" action="PutOut" method="post">
+                    {% csrf_token %}
+
+                        <input class="input100" type="text" name="email" placeholder="{{Email}}">
+   
+                        <input class="input100" type="password" name="password" placeholder="{{Password}}">
+
+                        <button class="login100-form-btn">
+                            {{Login}}
+                        </button>
+
+                        <a>
+                            {{Forgot}} {{Username}} / {{Password}}?
+                        </a>
+                        <a href="{{RegiHref}}">
+                            {{Registration}}
+                        </a>
+
+                </form>
+
+
+
+
+</body>
+</html>
+

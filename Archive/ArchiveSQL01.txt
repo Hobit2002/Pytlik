@@ -1,0 +1,14 @@
+CREATE TABLE `pytlik`.`ActiveUsers` ( `ActiveUser_ID` SERIAL NOT NULL , `ActiveUser_FirstName` VARCHAR(20) NOT NULL , `ActiveUser_OtherNames` VARCHAR(20) NOT NULL ,
+`ActiveUser_Username` VARCHAR(10) NOT NULL , `ActiveUser_Password` VARCHAR(30) NOT NULL , `ActiveUser_Email` VARCHAR(70) NOT NULL , `ActiveUser_Taste` JSON NOT NULL ,
+`ActiveUser_Age` TINYINT NOT NULL , `ActiveUser_Image` VARCHAR(20) NULL DEFAULT NULL , `ActiveUser_Info` TEXT NULL DEFAULT NULL ,
+`ActiveUser_Sex` SET('Male','Female','Other') NOT NULL , PRIMARY KEY (`ActiveUser_ID`), INDEX `Key_ActiveUser_FirstName` (`ActiveUser_FirstName`),
+INDEX `Key_ActiveUser_OtherNames` (`ActiveUser_OtherNames`), UNIQUE `Key_ActiveUser_Username` (`ActiveUser_Username`),
+UNIQUE `Key_ActiveUser_Password` (`ActiveUser_Password`), UNIQUE `Key_ActiveUser_Email` (`ActiveUser_Email`)) ENGINE = InnoDB;
+-
+CREATE TABLE `pytlik`.`PasiveUsers` ( `PasiveUser_ID` SERIAL NOT NULL ,  `PasiveUser_Nickname` VARCHAR(25) NOT NULL ,  `PasiveUser_Email` VARCHAR(70) NOT NULL ,
+  `PasiveUser_Taste` JSON NOT NULL ,  `PasiveUser_Info` TEXT NOT NULL ) ENGINE = InnoDB;
+
+ALTER TABLE `pytlik`.`PasiveUsers` ADD PRIMARY KEY (`PasiveUser_ID`);
+-
+CREATE TABLE `pytlik`.`REL_ActiveUsers_PasiveUsers` ( `ActiveUser_ID` INT NOT NULL , `PassiveUser_ID` INT NOT NULL , INDEX `Key_REL_ActiveUsers_PasiveUsers_ActiveUser` (`ActiveUser_ID`),
+ INDEX `Key_REL_ActiveUsers_PasiveUsers_PassiveUser` (`PassiveUser_ID`)) ENGINE = InnoDB COMMENT = 'Aneb kdo koho může označovat za klienta svých akcí.';
