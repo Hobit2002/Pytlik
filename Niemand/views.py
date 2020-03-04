@@ -1,36 +1,24 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.template import RequestContext
-import json, re,time
+import json, re,time,sys,os
 from pathlib import Path
-
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
+import Authentication,LanguageLoader
 
 #1.
 def gate(request):
     #1.1.Direct user on appropriate page
     try:
         #1.1. -a) If user is logged in, direct him on his profile.
-        User = request.COOKIES["token"]
+        Wish = redirect("Home")
+        Decision  = Authentication.CheckUser(request,Wish)  
+        return Decision
 
     
     except:
         #1.1. - b) If you can´t recognize any user, direct visitor on home page
         #1.1.2. - b) Get content of page
-        ReadIt = Path('languages\Pages.txt')
-        InnerText = ReadIt.read_text()
-        Pages =json.loads(InnerText)
-        PageContent = Pages["AboutUs"]
-        #1.1.3. -b) And translate it into language of page
-        #1.1.3.1 -b)Load dictionary
-        ReadIt = Path('languages\Dictionary.txt')
-        InnerText = ReadIt.read_text()
-        Dictionary =json.loads(InnerText)
-        #1.1.3.2 - b)Choose right language
-        Language = "Czech"
-        Language = Dictionary[Language]
-        #1.1.3.3. -b) Finally translate
-        LanguagePack = {}
-        for ToTranslate in PageContent:
-            LanguagePack[ToTranslate] = Language[ToTranslate]
+        LanguagePack = LanguageLoader.Language("AboutUs","Czech")
         return render(request,"Niemand\AboutUs.html", LanguagePack)
 
 

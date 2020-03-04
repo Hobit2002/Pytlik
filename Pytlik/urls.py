@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from registrationstuff import RegistrationViews
+from User import UserViews
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,7 +25,8 @@ urlpatterns = [
     path('login',include('registrationstuff.urlsRegistrationstuff')),
     path('registration',RegistrationViews.registration, name="Registration"),
     path('PutMeIn',RegistrationViews.Putin, name="Putin"),
-    path('PutOut',RegistrationViews.Putout, name="Putout")
+    path('PutOut',RegistrationViews.Putout, name="Putout"),
+    path('Home',UserViews.Home, name ="Home")
     
 ]
 urlpatterns += staticfiles_urlpatterns()

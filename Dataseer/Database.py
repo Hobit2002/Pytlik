@@ -1,12 +1,16 @@
 import mysql.connector
 
-def DP2 (q,w,e,r,t,z):
+def Connect():
     mydb = mysql.connector.connect(
-    host="bejt.local",
-    user="pytlikapp",
-    passwd="Trochu-KRATS-190",
-    database="pytlik",
-    port ="3307")
+    host="localhost",
+    user="root",
+    passwd="pouhazkouska",
+    database="Pytlik",
+    port ="3306")
+    return mydb
+
+def DP2 (q,w,e,r,t,z):
+    mydb = Connect()
     mycursor2 = mydb.cursor()
     Command=("""INSERT INTO `ActiveUsers`(`ActiveUser_FirstName`,`ActiveUser_OtherNames`,`ActiveUser_Password`,
     `ActiveUser_Email`,`ActiveUser_Taste`,`ActiveUser_Year`) VALUES (%s,%s,%s,%s,%s,%s)""")
@@ -21,12 +25,7 @@ def DP2 (q,w,e,r,t,z):
     return W[0][0]
 
 def DP3(q,w):
-    mydb = mysql.connector.connect(
-    host="bejt.local",
-    user="pytlikapp",
-    passwd="Trochu-KRATS-190",
-    database="pytlik",
-    port ="3307")
+    mydb = Connect()
     mycursor2 = mydb.cursor()
     Command=("""SELECT ActiveUser_ID, ActiveUser_FirstName, ActiveUser_OtherNames, ActiveUser_Image, ActiveUser_Info, ActiveUser_Sex, ActiveUser_Birthday, ActiveUser_Year
                 FROM ActiveUsers

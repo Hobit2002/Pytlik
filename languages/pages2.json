@@ -1,6 +1,6 @@
 {"AboutUs":["Pytlik","WelcomeText1","WelcomeText2","WelcomeText3","WelcomeText4","Login","Registrace"],
 "Login":["Email","Password","Forgot","Login", "Registration","Pytlik","RegiHref"],
 "Registration":["Pytlik","Password","Login", "Registration", "Email", "FirstName", "SecondName", "Birthdate", "Confirm"],
-"HomePage":["Pytlik","Email","Projects","Info"]
+"HomePage": [ "Pytlik", "Email", "Projects", "Info" ]
 
 }
