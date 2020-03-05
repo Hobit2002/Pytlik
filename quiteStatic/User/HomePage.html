@@ -4,16 +4,49 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     <head>
-        {% load static %}
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>{{Pytlik}} - {{FirstName}} {{OtherNames}}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
     </head>
-	<body>	
+	<body onload="FillIn()">	
+     <div>
+      <div></div>
+      <div></div>
+      <div>
+          <div><p id="Name"></p></div>
+          <div></div>
+          <div></div>
+          <div></div>
+      </div>
 
+      </div>
+      <script>
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 
-
+          function FillIn() {
+              var HelpUs = String(getCookie("BasicInfo"));
+              var Slim = HelpUs.replace(/\054/g, ",")
+              var BasicInfo = JSON.parse(Slim);
+              var FirstName = BasicInfo["FirstName"]
+              var OtherNames = BasicInfo["OtherNames"]
+              document.getElementById("Name").innerHTML = FirstName + " " + OtherNames;
+          }
+  </script>
     </body>
 </html>

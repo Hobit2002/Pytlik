@@ -3,6 +3,7 @@ from django.template import RequestContext
 import json, re,time,sys,os, time
 from pathlib import Path
 from django.urls import path, reverse
+from urllib.parse import urlencode
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
 import Authentication, Database,LanguageLoader
 
@@ -47,12 +48,15 @@ def Putout(request):
     Password = request.POST["password"]
     try:
         ID, FirstName, OtherNames, Image, Info, Sex, Birthday, Year = Database.DP3(Password,Email)
-        token = Authentication.Authenticate(request,ID,Email)
-        ToSend = {"Email":Email,"FirstName":FirstName, "OtherNames":OtherNames, "Image":Image, "Info":Info, "Sex":Sex, "Birthday":Birthday, "Year":Year, "token":token}
-        Response = redirect("Home")
-        Response.set_cookie("BasicInfo", json.dumps(ToSend),max_age = 7200)
+        token = Authentication.Authenticate(request,ID)
+        ToSend = {"Email" : Email, "FirstName" : FirstName, "OtherNames" : OtherNames, "Image" : Image, "Info" : Info, "Sex" : Sex, "Birthday" : Birthday, "Year" : Year}
+        base_url = reverse('Home')
+        data_url = urlencode(ToSend)
+        url = '{}?{}'.format(base_url,data_url)
+        Response = redirect(url)
+        Response.set_cookie("BasicInfo", str(token), max_age = 7200)
         return Response
     #1.1. - b) If you can´t recognize any user, redirect visitor on the login page
     except:
-        return redirect('loggin')
+        return redirect('login')
         
