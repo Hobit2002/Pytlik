@@ -10,6 +10,5 @@ import Authentication, Database, LanguageLoader
 
 def Home(request):
     LanguagePack = LanguageLoader.Language("HomePage","Czech")
-    Wish = render(request, "User\HomePage.html", LanguagePack)
-    Decision  = Authentication.CheckUser(request,Wish)  
+    Decision  = Authentication.CheckUser(request,"User\HomePage.html",LanguagePack)  
     return Decision

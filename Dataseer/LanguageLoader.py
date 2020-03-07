@@ -11,7 +11,6 @@ def Language(PageName,Language):
     InnerText= open('languages\Dictionary.json','r')
     Dictionary =json.load(InnerText)
     #1.1.3.2 - b)Choose right language
-    Language = Language
     Language = Dictionary[Language]
     #1.1.3.3. -b) Finally translate
     LanguagePack = {}

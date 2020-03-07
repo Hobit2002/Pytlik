@@ -7,18 +7,8 @@ import Authentication,LanguageLoader
 
 #1.
 def gate(request):
+    return redirect("Home")
     #1.1.Direct user on appropriate page
-    try:
-        #1.1. -a) If user is logged in, direct him on his profile.
-        Wish = redirect("Home")
-        Decision  = Authentication.CheckUser(request,Wish)  
-        return Decision
 
-    
-    except:
-        #1.1. - b) If you can´t recognize any user, direct visitor on home page
-        #1.1.2. - b) Get content of page
-        LanguagePack = LanguageLoader.Language("AboutUs","Czech")
-        return render(request,"Niemand\AboutUs.html", LanguagePack)
 
 

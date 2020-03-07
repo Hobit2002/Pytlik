@@ -2,11 +2,11 @@ import mysql.connector
 
 def Connect():
     mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="pouhazkouska",
-    database="Pytlik",
-    port ="3306")
+    host="bejt.local",
+    user="pytlikapp",
+    passwd="Trochu-KRATS-190",
+    database="pytlik",
+    port ="3307")
     return mydb
 
 def DP2 (q,w,e,r,t,z):
@@ -27,7 +27,7 @@ def DP2 (q,w,e,r,t,z):
 def DP3(q,w):
     mydb = Connect()
     mycursor2 = mydb.cursor()
-    Command=("""SELECT ActiveUser_ID, ActiveUser_FirstName, ActiveUser_OtherNames, ActiveUser_Image, ActiveUser_Info, ActiveUser_Sex, ActiveUser_Birthday, ActiveUser_Year
+    Command=("""SELECT ActiveUser_ID
                 FROM ActiveUsers
                 WHERE ActiveUser_Password= %s and ActiveUser_Email= %s """)
     VariTuple=(q,w)
@@ -36,6 +36,21 @@ def DP3(q,w):
 
     mycursor = mydb.cursor()
     Command=("""UPDATE ActiveUsers SET ActiveUser_LastActive = now() WHERE ActiveUser_Password = %s and ActiveUser_Email = %s """)
+    mycursor.execute(Command,VariTuple)
+    mydb.commit()
+    return W[0]
+
+def ShowAll(ID):
+    mydb = Connect()
+    mycursor2 = mydb.cursor()
+    Command=("""SELECT ActiveUser_Email, ActiveUser_FirstName, ActiveUser_OtherNames, ActiveUser_Image, ActiveUser_Info, ActiveUser_Sex, ActiveUser_Birthday, ActiveUser_Year
+                FROM ActiveUsers
+                WHERE ActiveUser_ID = %s """)
+    VariTuple=[ID]
+    mycursor2.execute(Command,VariTuple)
+    W=mycursor2.fetchall()
+    mycursor = mydb.cursor()
+    Command=("""UPDATE ActiveUsers SET ActiveUser_LastActive = now() WHERE ActiveUser_ID = %s """)
     mycursor.execute(Command,VariTuple)
     mydb.commit()
     return W[0]

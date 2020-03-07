@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost
--- Vytvořeno: Stř 04. bře 2020, 07:32
+-- Vytvořeno: Sob 07. bře 2020, 18:30
 -- Verze serveru: 10.3.21-MariaDB
 -- Verze PHP: 5.6.40
 
@@ -46,11 +46,16 @@ CREATE TABLE `ActiveUsers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
+-- Vyprázdnit tabulku před vkládáním `ActiveUsers`
+--
+
+TRUNCATE TABLE `ActiveUsers`;
+--
 -- Vypisuji data pro tabulku `ActiveUsers`
 --
 
 INSERT INTO `ActiveUsers` (`ActiveUser_ID`, `ActiveUser_FirstName`, `ActiveUser_OtherNames`, `ActiveUser_Password`, `ActiveUser_Email`, `ActiveUser_Taste`, `ActiveUser_Image`, `ActiveUser_Info`, `ActiveUser_Sex`, `ActiveUser_FirstActive`, `ActiveUser_LastActive`, `ActiveUser_Home`, `ActiveUser_Birthday`, `ActiveUser_Year`) VALUES
-(3, 'David', 'Nadrchal', 'Junák', 'davidnadrchalintj@gmail.com', '', NULL, NULL, NULL, '2020-02-29 17:22:48', '2020-03-03 17:48:13', NULL, NULL, 2002),
+(3, 'David', 'Nadrchal', 'Junák', 'davidnadrchalintj@gmail.com', '', NULL, NULL, NULL, '2020-02-29 17:22:48', '2020-03-07 17:28:36', NULL, NULL, 2002),
 (4, 'Píďal', 'Ženatý', 'PravéJá', 'kvokodak@gmail.com', '', NULL, NULL, NULL, '2020-02-29 20:24:23', '2020-02-29 20:24:23', NULL, NULL, 2045),
 (5, 'Mr.', 'Quaker', 'lokoko', 'regvqreverqbvhalintj@gmail.com', '', NULL, NULL, NULL, '2020-02-29 20:27:44', '2020-02-29 20:27:44', NULL, NULL, 1999),
 (8, 'Davihh', 'Nadrchgh', 'luž', 'zxkrintj@gmail.com', '', NULL, NULL, NULL, '2020-02-29 20:49:39', '2020-02-29 20:49:39', NULL, NULL, 1980),
@@ -79,6 +84,11 @@ CREATE TABLE `PasiveUsers` (
   `PasiveUser_Info` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Vyprázdnit tabulku před vkládáním `PasiveUsers`
+--
+
+TRUNCATE TABLE `PasiveUsers`;
 -- --------------------------------------------------------
 
 --
@@ -90,6 +100,11 @@ CREATE TABLE `REL_ActiveUsers_PasiveUsers` (
   `PassiveUser_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Aneb kdo koho může označovat za klienta svých akcí.';
 
+--
+-- Vyprázdnit tabulku před vkládáním `REL_ActiveUsers_PasiveUsers`
+--
+
+TRUNCATE TABLE `REL_ActiveUsers_PasiveUsers`;
 --
 -- Vypisuji data pro tabulku `REL_ActiveUsers_PasiveUsers`
 --
@@ -106,16 +121,21 @@ INSERT INTO `REL_ActiveUsers_PasiveUsers` (`ActiveUser_ID`, `PassiveUser_ID`) VA
 CREATE TABLE `Session` (
   `Session_EventTime` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `Session_UserID` int(11) NOT NULL,
-  `Session_UserToken` varchar(65) NOT NULL,
+  `Session_UserToken` bigint(11) NOT NULL,
   `Session_UserDevice` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Vyprázdnit tabulku před vkládáním `Session`
+--
+
+TRUNCATE TABLE `Session`;
 --
 -- Vypisuji data pro tabulku `Session`
 --
 
 INSERT INTO `Session` (`Session_EventTime`, `Session_UserID`, `Session_UserToken`, `Session_UserDevice`) VALUES
-('2020-03-03 17:48:22', 3, 'davidnadrchalintj@gmail.com1583257701', '127.0.0.1');
+('2020-03-07 17:28:36', 3, 31583602117, '127.0.0.1');
 
 --
 -- Klíče pro exportované tabulky

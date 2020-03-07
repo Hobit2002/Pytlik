@@ -32,11 +32,10 @@ def Putin(request):
     Password1 = request.POST["password1"]
     Password2 = request.POST["password2"]
     if Password1==Password2:
-        ID = Database.DP2(FirstName,SecondName,Password1,Email,"",Birthdate)
-        token = Authentication.Authenticate(request,ID,Email)
-        ToSend = {"Email":Email,"FirstName":FirstName, "OtherNames":SecondName, "Image":'', "Info":'', "Sex":'', "Birthday":'', "Year":Birthdate, "token":token}
-        Response = redirect("Home")
-        Response.set_cookie("BasicInfo", json.dumps(ToSend),max_age = 7200)
+        ID = (Database.DP2(FirstName,SecondName,Password1,Email,"",Birthdate))[0]
+        token = Authentication.Authenticate(request,ID)
+        Response = redirect('Home')
+        Response.set_cookie("BasicInfo", str(token), max_age = 7200)
         return Response
     else:
         return redirect('registration')
@@ -47,13 +46,9 @@ def Putout(request):
     Email =  request.POST["email"]
     Password = request.POST["password"]
     try:
-        ID, FirstName, OtherNames, Image, Info, Sex, Birthday, Year = Database.DP3(Password,Email)
+        ID = (Database.DP3(Password,Email))[0]
         token = Authentication.Authenticate(request,ID)
-        ToSend = {"Email" : Email, "FirstName" : FirstName, "OtherNames" : OtherNames, "Image" : Image, "Info" : Info, "Sex" : Sex, "Birthday" : Birthday, "Year" : Year}
-        base_url = reverse('Home')
-        data_url = urlencode(ToSend)
-        url = '{}?{}'.format(base_url,data_url)
-        Response = redirect(url)
+        Response = redirect('Home')
         Response.set_cookie("BasicInfo", str(token), max_age = 7200)
         return Response
     #1.1. - b) If you can´t recognize any user, redirect visitor on the login page

@@ -7,10 +7,11 @@
     "\\Niemand",
     "\\Pytlik",
     "\\quiteStatic",
+    "\\quiteStatic\\Niemand",
     "\\quiteStatic\\User",
     "\\registrationstuff",
     "\\User"
   ],
-  "SelectedNode": "\\Dataseer\\Database.py",
+  "SelectedNode": "\\quiteStatic\\User\\HomePage.html",
   "PreviewInSolutionExplorer": false
 }
