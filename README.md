@@ -11,9 +11,13 @@ Django:
   
 Databáze:
 1.Běte na tuto stránku: https://mariadb.com/downloads/ a stáhněte si nástroj na práci s databázemi.
-2. Vytvořte si databázi Pytlik, namapujte ji na port 3306 a zadejte si heslo pouhazkouska 
-   (tohoto procesu se nijak nebojte. V průběhu instalace a vytváření databáze se vás aplikace na všechno explicitně zeptá).
-3. Až budete mít prázdnou databázi Pytlik, spusťte v ní soubor pytlik.sql
+2. Otevřte si aplikaci HeidiSQL a vytvořte si "nové okno", přístupé údaje do tohoto okna nechť jsou následující
+uživatel:root
+heslo: pouhazkouska
+Jakmile se vám okno vytvoří, klikněte pravým tlačítkem na lachtana (asi se jmenuje Mario) a ve vyskočivší nabídce zaklikněte, že chcete vytvořit nový objekt, což následněte rozvinete na databázi jménem pytlik.
+3. Až budete mít prázdnou databázi Pytlik, klikněte na tlačítko Soubor (horní lišta úplně vlevo) a vyberte, že chcete "Run SQL file". 
+   Program se vás zeptá, která složka to má být a vy vyberete pytlik.sql. 
+   Nejspíše žádnou změnu neuvidíte, ale když okno opustíte a pak se do něj zase vrátíte, úspěch by se měl dostavit.
 
 A pak už by vám mělo fungovat veškeré nic, které zatím máme.
 Kdo by měl s čímkoliv problém, nechť mě kontaktuje.

@@ -5,9 +5,9 @@ import Consolewriter
 
 def Connect():
     mydb = mysql.connector.connect(
-    host="bejt.local",
-    user="pytlikapp",
-    passwd="Trochu-KRATS-190",
+    host="localhost",
+    user="root",
+    passwd="pouhazkouska",
     database="pytlik",
     port ="3307")
     return mydb
@@ -57,6 +57,7 @@ def ShowAll(ID):
     mycursor.execute(Command,VariTuple)
     mydb.commit()
     return W[0]
+<<<<<<< HEAD
 
 def UpdateUser(FirstName, SecondName, Email, Year, Info, ID):
     mydb = Connect()
@@ -68,3 +69,5 @@ def UpdateUser(FirstName, SecondName, Email, Year, Info, ID):
     Consolewriter.ShowInConsole(DataPack)
     mycursor2.execute(Command,DataPack)
     mydb.commit()
+=======
+>>>>>>> 6695d865bbfbff5f6584d92850769bd5ed81de13
