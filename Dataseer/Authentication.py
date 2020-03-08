@@ -31,7 +31,6 @@ def CheckUser(request, Page, LanguagePack):
             NewToken = int(str(Report[0][0]) + str(round(time.time())))
 
             NewLanguagePack, Context = BuildPack(Report[0][0], request, LanguagePack)
-            Consolewriter.ShowInConsole(NewLanguagePack)
             Wish = render(request, Page, NewLanguagePack)
             Wish.set_cookie("BasicInfo", str(NewToken),max_age = 7200)
             Wish.set_cookie("MetaInfo", Context)
@@ -48,8 +47,24 @@ def CheckUser(request, Page, LanguagePack):
            return render(request,"Niemand\AboutUs.html", LanguagePack)
     except:
        LanguagePack = LanguageLoader.Language("AboutUs","Czech")
-       Consolewriter.ShowInConsole(LanguagePack)
-       return gender(request,"Niemand\AboutUs.html", LanguagePack)
+       return render(request,"Niemand\AboutUs.html", LanguagePack)
+
+def QuickCheck(request):
+    mydb = Database.Connect()
+    TechSpy = mydb.cursor()
+    try:
+        token = request.COOKIES["BasicInfo"]
+        Command="""SELECT Session_UserDevice FROM Session WHERE Session_UserToken = %s"""
+        TechSpy.execute(Command,[int(token)])
+        Report = TechSpy.fetchall()
+        if Report[0]==ip.visitor_ip_address(request):
+            return True
+        else:
+            LanguagePack = LanguageLoader.Language("AboutUs","Czech")
+            return render(request,"Niemand\AboutUs.html", LanguagePack)
+    except:
+        LanguagePack = LanguageLoader.Language("AboutUs","Czech")
+        return render(request,"Niemand\AboutUs.html", LanguagePack)
 
 
 def BuildPack (ID, request, LanguagePack):
@@ -59,9 +74,18 @@ def BuildPack (ID, request, LanguagePack):
         return [LanguagePack, Context]
     except:
         MetaInfo = Database.ShowAll(ID)
-        UserParameters = ["Email", "FirstName", "OtherNames", "Image", "Info", "Sex", "Birthday", "Year"]
+        UserParameters = ["Contact", "FirstName", "OtherNames", "Image", "Info", "Sex", "Birthday", "Year"]
         for ParaIndex in range(0,len(UserParameters)):
             LanguagePack[UserParameters[ParaIndex]] = MetaInfo[ParaIndex]
 
         Context = 0
         return [LanguagePack, Context]
+
+def GetID(request):
+    mydb = Database.Connect()
+    TechSpy = mydb.cursor()
+    token = request.COOKIES["BasicInfo"]
+    Command="""SELECT Session_UserID FROM Session WHERE Session_UserToken = %s"""
+    TechSpy.execute(Command,[int(token)])
+    ID = TechSpy.fetchall()[0][0]
+    return ID

@@ -1,25 +1,4 @@
 
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'davidnadrchalintj@gmail.com', 'Projects': 'Projekty', 'Info': None, 'FirstName': 'David', 'OtherNames': 'Nadrchal', 'Image': None, 'Sex': None, 'Birthday': None, 'Year': 2002}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'WelcomeText1': 'Díky technice už všude byl,', 'WelcomeText2': 'teï už jenom vedoucím radí,', 'WelcomeText3': 'aby je od porad osvobodil,', 'WelcomeText4': 'neb ví, že staršnì moc jim vadí.', 'Login': 'Pøihlásit se', 'Registrace': 'Registrace'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'WelcomeText1': 'Díky technice už všude byl,', 'WelcomeText2': 'teï už jenom vedoucím radí,', 'WelcomeText3': 'aby je od porad osvobodil,', 'WelcomeText4': 'neb ví, že staršnì moc jim vadí.', 'Login': 'Pøihlásit se', 'Registrace': 'Registrace'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'WelcomeText1': 'Díky technice už všude byl,', 'WelcomeText2': 'teï už jenom vedoucím radí,', 'WelcomeText3': 'aby je od porad osvobodil,', 'WelcomeText4': 'neb ví, že staršnì moc jim vadí.', 'Login': 'Pøihlásit se', 'Registrace': 'Registrace'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'Email', 'Projects': 'Projekty', 'Info': 'Info'}
-{'Pytlik': 'Pytlík', 'Email': 'davidnadrchalintj@gmail.com', 'Projects': 'Projekty', 'Info': None, 'FirstName': 'David', 'OtherNames': 'Nadrchal', 'Image': None, 'Sex': None, 'Birthday': None, 'Year': 2002}
+('Davids', 'Nadrchal', 'davidnadrchalintj@gmail.com', '2002', 'None', 'None', (3,))
+('Meloun', 'Nadrchal', 'davidnadrchalintj@gmail.com', '2002', 'None', 'None', 3)
+('Davidík', 'Nadrchal', 'davidnadrchalintj@gmail.com', '2002', 'None', 3)

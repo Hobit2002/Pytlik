@@ -26,7 +26,9 @@ urlpatterns = [
     path('registration',RegistrationViews.registration, name="Registration"),
     path('PutMeIn',RegistrationViews.Putin, name="Putin"),
     path('PutOut',RegistrationViews.Putout, name="Putout"),
-    path('Home',UserViews.Home, name ="Home")
+    path('Home',UserViews.Home, name ="Home"),
+    path('settings',UserViews.Settings, name ="Settings"),
+    path('SetProfile',UserViews.Saving, name ="Saving")
     
 ]
 urlpatterns += staticfiles_urlpatterns()

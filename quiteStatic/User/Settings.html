@@ -1,1 +1,68 @@
-<b>Brzy doplnime</b>
+{% extends "frpg.html" %}
+{% block content %}
+{% load static %}
+<body onload="TypeIn(document)">
+    <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
+    <div id="InfoFrame">
+        <form action="SetProfile" method="post">
+            {% csrf_token %}
+            <input type="text" id="FirstName" name="FirstName">
+            <input type="text" id="SecondName" name="SecondName">
+            <input type="text" id="Email" name="Email">
+            <input type="text" id="Birthday" name="Birthday">
+            <input type="text" id="Year" name="Year">
+            <input type="text" id="Sex" name="Sex">
+            <input type="text" id="Info" name="Info">
+
+            <button>
+                {{Save}}
+            </button>
+        </form>
+    </div>
+    <script>
+        function TypeIn(document) {
+    if (Object.is(Vertify(), true)) {
+        sessionStorage.setItem("FirstName", "{{ FirstName }}");
+        sessionStorage.setItem("OtherNames", "{{ OtherNames }}");
+        sessionStorage.setItem("Image", "{{ Image }}");
+        sessionStorage.setItem("Info", "{{ Info }}");
+        sessionStorage.setItem("Sex", "{{ Sex }}");
+        sessionStorage.setItem("Birthday", "{{ Birthday }}");
+        sessionStorage.setItem("Year", "{{ Year }}");
+    }
+    document.getElementById("FirstName").value = sessionStorage.getItem('FirstName');
+    document.getElementById("SecondName").value = sessionStorage.getItem('OtherNames');
+    document.getElementById("Email").value = sessionStorage.getItem('Email');
+    document.getElementById("Year").value = sessionStorage.getItem('Year');
+    document.getElementById("Info").value = sessionStorage.getItem('Info');
+    document.getElementById("Sex").value = sessionStorage.getItem('Sex');
+    document.getElementById("Birthday").value = sessionStorage.getItem('Birthday');
+
+
+            }
+            function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function Vertify() {
+    if (getCookie("MetaInfo") == 0) {
+        return true
+    } else {
+        return false
+    }
+}
+    </script>
+</body>
+ {% endblock %}

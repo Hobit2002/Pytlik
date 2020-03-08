@@ -20,6 +20,12 @@
     "Projects": "Projekty",
     "Info": "Info",
     "RegiHref": "http://127.0.0.1:8000/registration",
-    "HomeHref": "http://127.0.0.1:8000/Home"
+    "HomeHref": "http://127.0.0.1:8000/Home",
+    "Name": "Jméno",
+    "AboutMe": "O mì",
+    "Gender": "Pohlaví",
+    "HappyDay": "Datum narození",
+    "Change": "Zmìnit",
+    "Save": "Uložit"
   }
 }

@@ -1,12 +1,15 @@
 import mysql.connector
+import sys,os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
+import Consolewriter
 
 def Connect():
     mydb = mysql.connector.connect(
     host="bejt.local",
-    user="root",
-    passwd="pouhazkouska",
+    user="pytlikapp",
+    passwd="Trochu-KRATS-190",
     database="pytlik",
-    port ="3306")
+    port ="3307")
     return mydb
 
 def DP2 (q,w,e,r,t,z):
@@ -54,3 +57,14 @@ def ShowAll(ID):
     mycursor.execute(Command,VariTuple)
     mydb.commit()
     return W[0]
+
+def UpdateUser(FirstName, SecondName, Email, Year, Info, ID):
+    mydb = Connect()
+    mycursor2 = mydb.cursor()
+    Command=("""UPDATE ActiveUsers
+               SET ActiveUser_FirstName= %s, ActiveUser_OtherNames= %s, ActiveUser_Email= %s, ActiveUser_Year= %s, ActiveUser_Info = %s         
+                WHERE ActiveUser_ID = %s """)
+    DataPack = (FirstName, SecondName, Email, Year, Info, ID)
+    Consolewriter.ShowInConsole(DataPack)
+    mycursor2.execute(Command,DataPack)
+    mydb.commit()

@@ -1,75 +1,62 @@
-﻿<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head onload="FillIn()">
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Tohle bys tu neměl vidět, prasáku!</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
-    </head>
-	<body onload="FillIn()">	
-     <div id="InfoFrame">
-         <div></div>
-      <div></div>
-      <div>
-          <div><b>Jméno:</b><p id="Name"></p></div>
-          <div><b>O mě:</b><p id="Info"></p></div>
-          <div><b>Pohlaví:</b><p id="Sex"></p></div>
-          <div><b>Datum narození</b><p id="Birthday"></p></div>
-      </div>
-     <button type="button" onclick="SettingsMode()">Změnit údaje</button>
-      </div>
-  <script>
-
-  function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for(var i = 0; i <ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-      }
-       return "";
-      }
-
-      function Vertify() {
-          if (getCookie("MetaInfo") == 0) {
-              return true
-          } else {
-              return false
-          }
-      }
-
-      function FillIn() {
-          if (Object.is(Vertify(), true)) {
+﻿{% extends "frpg.html" %}
+{% block content %}
+{% load static %}
+    <body onload="FillIn(document)">
+        <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
+        <div id="InfoFrame">
+            <div></div>
+            <div></div>
+            <div>
+                <div><b>{{Name}}:</b><p id="Name"></p></div>
+                <div><b>{{AboutMe}}:</b><p id="Info"></p></div>
+                <div><b>{{Gender}}:</b><p id="Sex"></p></div>
+                <div><b>{{HappyDay}}</b><p id="Birthday"></p></div>
+            </div>
+            <form action="settings"><button>{{Change}}</button></form>
+        </div>
+        <script>
+                //src="{% static 'PageManagement.js' %}
+function FillIn(document) {
+    if (Object.is(Vertify(), true)) {
         sessionStorage.setItem("FirstName", "{{ FirstName }}");
         sessionStorage.setItem("OtherNames", "{{ OtherNames }}");
         sessionStorage.setItem("Image", "{{ Image }}");
-        sessionStorage.setItem("Info","{{ Info }}");
+        sessionStorage.setItem("Info", "{{ Info }}");
         sessionStorage.setItem("Sex", "{{ Sex }}");
-        sessionStorage.setItem("Birthday","{{ Birthday }}");
+        sessionStorage.setItem("Birthday", "{{ Birthday }}");
         sessionStorage.setItem("Year", "{{ Year }}");
-      }
-          document.title = "{{Pytlik}}" + " - " + sessionStorage.getItem('FirstName') + " " + sessionStorage.getItem('OtherNames');
-          document.getElementById("Name").innerHTML = sessionStorage.getItem('FirstName') + " " + sessionStorage.getItem('OtherNames');
-          document.getElementById("Info").innerHTML = sessionStorage.getItem('Info');
-          document.getElementById("Sex").innerHTML = sessionStorage.getItem('Sex');
-          document.getElementById("Birthday").innerHTML = sessionStorage.getItem('Birthday') + " (v roce " + sessionStorage.getItem('Year') + ")";
-          
+        sessionStorage.setItem("Email", "{{ Contact }}");
+    }
+    document.getElementById("Name").innerHTML = sessionStorage.getItem('FirstName') + " " + sessionStorage.getItem('OtherNames');
+    document.getElementById("Info").innerHTML = sessionStorage.getItem('Info');
+    document.getElementById("Sex").innerHTML = sessionStorage.getItem('Sex');
+    document.getElementById("Birthday").innerHTML = sessionStorage.getItem('Birthday') + " ({{Birthdate}} " + sessionStorage.getItem('Year') + ")";
+            }
+            function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
 
-      }
-
-      function SettingsMode() {
-          document.getElementById("InfoFrame").innerHTML = "{% include 'User\Settings.html'%}";
-     }
-  </script>
+function Vertify() {
+    if (getCookie("MetaInfo") == 0) {
+        return true
+    } else {
+        return false
+    }
+}
+        </script>
     </body>
-</html>
+ {% endblock %}
+
+

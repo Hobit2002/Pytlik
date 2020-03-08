@@ -32,7 +32,7 @@ def Putin(request):
     Password1 = request.POST["password1"]
     Password2 = request.POST["password2"]
     if Password1==Password2:
-        ID = (Database.DP2(FirstName,SecondName,Password1,Email,"",Birthdate))[0]
+        ID = (Database.DP2(FirstName,SecondName,Password1,Email,"",Birthdate))
         token = Authentication.Authenticate(request,ID)
         Response = redirect('Home')
         Response.set_cookie("BasicInfo", str(token), max_age = 7200)
