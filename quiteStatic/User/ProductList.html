@@ -1,0 +1,23 @@
+
+{% load static %}
+    <body onload="FillIn(document)">
+        <h3>{{MyProductHTML}}</h3>
+        <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
+        {% for Product in MyProducts %}
+        <form method="get" action="Product"><button type="submit"><p>{{Product}}</p></button></form>
+        {% endfor %}
+        <h3>{{NewHTML}}</h3>
+        <form action="NewProduct">
+            <div id="InfoFrame">
+                <input type="text" name="ProductName" placeholder="{{Name}}">
+                <input type="text" name="ProductTemplate" placeholder="{{TemplateHTML}}">
+                <input type="datetime-local" name="ProductRelease" placeholder="{{ReleaseTimeHTML}}">
+                <input type="time" name="ProductAbsorbation" placeholder="{{AbsorbTimeHTML}}">
+            </div>
+            <button>{{Add}}</button>
+        </form>
+        <div>
+            <form action="Home"><button>{{Home}}</button></form>
+        </div>
+
+    </body>

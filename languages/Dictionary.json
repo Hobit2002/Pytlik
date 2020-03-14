@@ -26,6 +26,21 @@
     "Gender": "Pohlaví",
     "HappyDay": "Datum narození",
     "Change": "Zmìnit",
-    "Save": "Uložit"
+    "Save": "Uložit",
+    "Logout": "Odhlásit se",
+    "Products": "Produkty",
+    "PasiveUsers": "Pasivní uživatelé",
+    "Add": "Pøidat",
+    "Nickname": "Jméno",
+    "Home": "Domù",
+    "Delete": "Odstranit",
+    "MyProductHTML": "Mé produkty",
+    "TemplateHTML": "Šablona",
+    "ReleaseTimeHTML": "Èas vypuštìní",
+    "AbsorbTimeHTML": "Délka spotøeby",
+    "NewHTML": "Nový",
+    "ClientsHTML": "Klienti",
+    "TeamHTML": "Tým",
+    "NickNnameHTML": "Jméno/Pøezdívka"
   }
 }

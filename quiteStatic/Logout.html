@@ -1,0 +1,10 @@
+{% load static %}
+<div>
+    <form action="Home"><button onclick="Logout()"><p>{{Logout}}</p></button></form>
+</div>
+<script type="text/javascript" src="PageManagement.js"></script>
+<script>
+    function Logout() {
+        document.cookie = "BasicInfo=; expires= Thu, 21 Aug 2014 20:00:00 UTC"
+    }
+</script>

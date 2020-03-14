@@ -1,0 +1,24 @@
+{% extends "activeframe.html" %}
+{% block content %}
+{% load static %}
+    <body onload="FillIn(document)">
+        <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
+        {% for Pasive in PasivesParameters %}
+        <form action="FindAndKill"><p>{{Pasive.0}} {{Pasive.1}} {{Pasive.2}}<button type="submit" name="ToDelete" value="{{Pasive.1}}">{{Delete}}</button></p></form>
+        {% endfor %}
+        <form action="NewPassives" , method="post">
+            {% csrf_token %}
+            <div id="InfoFrame">
+                <input type="text" name="Nickname" placeholder="{{Nickname}}">
+                <input type="text" name="Email" placeholder="{{Email}}">
+                <input type="text" name="Info" placeholder="{{Info}}">
+            </div>
+            <button>{{Add}}</button>
+        </form>
+        <div>
+            <form action="Home"><button>{{Home}}</button></form>
+            <form action="settings"><button>{{Products}}</button></form>
+        </div>
+
+    </body>
+ {% endblock %}

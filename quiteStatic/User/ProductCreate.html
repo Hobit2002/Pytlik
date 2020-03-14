@@ -1,0 +1,40 @@
+{% extends "activeframe.html" %}
+{% block content %}
+{% load static %}
+    <body>
+
+        <h1>{{ProductName}}</h1>
+        <div>
+            <h3>{{TeamHTML}}</h3>
+            {% for TeamMemeber in TeamMembers %}
+            <form action="FindAndKill" p>{{TeamMember.1}}<button type="submit" name="ToDelete" value="{{TeamMember.0}}">{{Delete}}</button></p></form>
+            {% endfor %}
+            <form action="NewProductHero" , method="post">
+                {% csrf_token %}
+                <div id="InfoFrame">
+                    <input type="text" name="Nickname" placeholder="{{NickNnameHTML}}">
+                </div>
+                <button value="TeamMember" name="ProductHero">{{Add}}</button>
+            </form>
+        </div>
+
+        <div>
+            <h3>{{ClientsHTML}}</h3>
+            {% for Client in Clients %}
+            <form action="FindAndKill" p>{{Client.1}}<button type="submit" name="ToDelete" value="{{Client}}">{{Delete}}</button></p></form>
+            {% endfor %}
+            <form action="NewProductHero" , method="post">
+                {% csrf_token %}
+                <div id="InfoFrame">
+                    <input type="text" name="Nickname" placeholder="{{NickNnameHTML}}">
+                </div>
+                <button value="Client" name="ProductHero">{{Add}}</button>
+            </form>
+        </div>
+
+            <div>
+                <form action="Home"><button>{{Home}}</button></form>
+            </div>
+        
+    </body>
+ {% endblock %}

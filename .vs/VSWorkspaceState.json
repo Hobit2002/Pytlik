@@ -1,17 +1,16 @@
 {
   "ExpandedNodes": [
     "",
+    "\\catholiclyStatic",
     "\\Dataseer",
-    "\\Dataseer\\LanguageLoader.py",
     "\\languages",
     "\\Niemand",
     "\\Pytlik",
     "\\quiteStatic",
-    "\\quiteStatic\\Niemand",
+    "\\quiteStatic\\Registrationstuff",
     "\\quiteStatic\\User",
-    "\\registrationstuff",
     "\\User"
   ],
-  "SelectedNode": "\\quiteStatic\\User\\HomePage.html",
+  "SelectedNode": "\\Archive",
   "PreviewInSolutionExplorer": false
 }

@@ -28,7 +28,13 @@ urlpatterns = [
     path('PutOut',RegistrationViews.Putout, name="Putout"),
     path('Home',UserViews.Home, name ="Home"),
     path('settings',UserViews.Settings, name ="Settings"),
-    path('SetProfile',UserViews.Saving, name ="Saving")
-    
+    path('SetProfile',UserViews.Saving, name ="Saving"),
+    path('MyPasive',UserViews.Pasives, name ="PassiveUsers"),
+    path('NewPassives',UserViews.NewPasives, name ="NewPassiveUsers"),
+    path('FindAndKill',UserViews.FindAndKill, name ="FindAndKill"),
+    path('NewProduct',UserViews.NewProduct, name ="NewProduct"),
+    path('Product',UserViews.Product, name ="Product"),
+    path('NewProductHero',UserViews.NewProductHero, name ="NewProductHero"),
+
 ]
 urlpatterns += staticfiles_urlpatterns()

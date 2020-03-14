@@ -27,6 +27,7 @@ def CheckUser(request, Page, LanguagePack):
         Command="""SELECT Session_UserID, Session_UserDevice FROM Session WHERE Session_UserToken = %s"""
         TechSpy.execute(Command,[int(token)])
         Report = TechSpy.fetchall()
+        #Consolewriter.ShowInConsole(Report)
         if Report[0][1]==ip.visitor_ip_address(request):
             NewToken = int(str(Report[0][0]) + str(round(time.time())))
 
@@ -45,7 +46,7 @@ def CheckUser(request, Page, LanguagePack):
         else:
            LanguagePack = LanguageLoader.Language("AboutUs","Czech")
            return render(request,"Niemand\AboutUs.html", LanguagePack)
-    except:
+    except KeyError:
        LanguagePack = LanguageLoader.Language("AboutUs","Czech")
        return render(request,"Niemand\AboutUs.html", LanguagePack)
 

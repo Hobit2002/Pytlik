@@ -1,7 +1,29 @@
-{"AboutUs":["Pytlik","WelcomeText1","WelcomeText2","WelcomeText3","WelcomeText4","Login","Registrace"],
-"Login":["Email","Password","Forgot","Login", "Registration","Pytlik","RegiHref"],
-"Registration":["Pytlik","Password","Login", "Registration", "Email", "FirstName", "SecondName", "Birthdate", "Confirm"],
-  "HomePage": [ "Pytlik", "Email", "Projects", "Name", "AboutMe", "Gender", "Birthdate", "HappyDay", "Change" ],
-  "Settings": ["Save"]
+{
+  "AboutUs": [ "Pytlik", "WelcomeText1", "WelcomeText2", "WelcomeText3", "WelcomeText4", "Login", "Registrace" ],
+  "Login": [ "Email", "Password", "Forgot", "Login", "Registration", "Pytlik", "RegiHref" ],
+  "Registration": [ "Pytlik", "Password", "Login", "Registration", "Email", "FirstName", "SecondName", "Birthdate", "Confirm" ],
+  "HomePage": [
+    "Pytlik",
+    "Email",
+    "Projects",
+    "Name",
+    "AboutMe",
+    "Gender",
+    "Birthdate",
+    "HappyDay",
+    "Change",
+    "Products",
+    "PasiveUsers",
+    "Logout",
+    "Add",
+    "MyProductHTML",
+    "TemplateHTML",
+    "ReleaseTimeHTML",
+    "AbsorbTimeHTML",
+    "NewHTML"
+  ],
+  "Settings": [ "Save", "Logout" ],
+  "Passives": [ "Add", "Nickname", "Email", "Info", "Logout", "Products", "Home", "Delete" ],
+  "ProductCreate": [ "NickNnameHTML", "Logout", "Delete", "Add", "Home", "ClientsHTML", "TeamHTML" ]
 
 }

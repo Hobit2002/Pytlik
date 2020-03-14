@@ -1,4 +1,4 @@
-﻿{% extends "frpg.html" %}
+﻿{% extends "activeframe.html" %}
 {% block content %}
 {% load static %}
     <body onload="FillIn(document)">
@@ -13,6 +13,12 @@
                 <div><b>{{HappyDay}}</b><p id="Birthday"></p></div>
             </div>
             <form action="settings"><button>{{Change}}</button></form>
+        </div>
+        <div>
+        {% include 'User\ProductList.html' %}
+        </div>
+        <div>
+        <form action="MyPasive"><button>{{PasiveUsers}}</button></form>
         </div>
         <script>
                 //src="{% static 'PageManagement.js' %}
