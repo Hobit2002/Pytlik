@@ -1,25 +1,66 @@
 
-1
+David Nadrchal
+Jonáš Nadrchal
+David Nadrchal
+David Nadrchal
+['TeamMember', 'Marolda', 'Obídek']
 []
+
+David Nadrchal
+Jonáš Nadrchal
+David Nadrchal
+David Nadrchal
+24
 []
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
-[(3, '127.0.0.1')]
+
+SELECT PassiveUser_ID 
+                FROM REL_ActiveUsers_PasiveUsers
+                WHERE ActiveUser_ID =24
+[]
+
+SELECT PassiveUser_ID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+SELECT PasiveUser_ID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,), (31584284709,), (31584284709,)]
+1584284709, 31584284709, 31584284709
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,), (31584284709,), (31584284709,)]
+1584284709, 31584284709, 31584284709
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,), (31584284709,), (31584284709,)]
+1584284709, 31584284709, 31584284709
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,), (31584284709,), (31584284709,)]
+1584284709, 31584284709, 31584284709
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,), (31584284709,), (31584284709,)]
+1584284709, 31584284709, 31584284709
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,)]
+ 31584284709
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,)]
+ 31584284709
+SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =2
+[(31584284709,)]
+ 31584284709

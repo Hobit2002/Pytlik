@@ -4,7 +4,7 @@
         <h3>{{MyProductHTML}}</h3>
         <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
         {% for Product in MyProducts %}
-        <form method="get" action="Product"><button type="submit"><p>{{Product}}</p></button></form>
+        <form method="get" action="Product"><button type="submit" name="OldProductName" value="{{Product}}"><p>{{Product}}</p></button></form>
         {% endfor %}
         <h3>{{NewHTML}}</h3>
         <form action="NewProduct">
@@ -16,8 +16,4 @@
             </div>
             <button>{{Add}}</button>
         </form>
-        <div>
-            <form action="Home"><button>{{Home}}</button></form>
-        </div>
-
     </body>

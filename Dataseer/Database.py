@@ -5,9 +5,9 @@ import Consolewriter, Authentication
 
 def Connect():
     mydb = mysql.connector.connect(
-    host="bejt.local",
-    user="pytlikapp",
-    passwd="Trochu-KRATS-190",
+    host="localhost",
+    user="root",
+    passwd="pouhazkouska",
     database="pytlik",
     port ="3306")
     return mydb
@@ -188,42 +188,155 @@ def CreateProduct(request, Name, Template, ReleaseDate, AbsorbationTime):
     mydb.commit()
     return ProjectID
 
-def ProductHeroes(request):
+def ShowHeroes(ProductName):
     Team = []
     Clients = []
-    ID = Authentication.GetID(request)
+    ProductID = GetProductID(ProductName)
     mydb = Connect()
     mycursor = mydb.cursor()
+    #Pasive Users
     Command=("""SELECT PasiveUserID, RelationType
             FROM REL_Projects_PasiveUsers
-            WHERE User_ID= %s """)
-    VariTuple=[ID]
+            WHERE ProjectID= %s """)
+    VariTuple=[ProductID]
     mycursor. execute(Command,VariTuple)
     Result = mycursor.fetchall()
     mycursor2 = mydb.cursor()
     for ToForm in Result:
         Key = ToForm[0]
-        RelationType = ToForm[1]
+        RelationType = str(ToForm[1])
         Command=("""SELECT PasiveUser_Nickname 
                 FROM PasiveUsers
                 WHERE PasiveUser_ID= %s """)
         VariTuple=[Key]
         mycursor2.execute(Command,VariTuple)
         Result2 = (mycursor2.fetchall())[0][0]
-        if RelationType == "TeamMember":
+        if RelationType == "{'TeamMember'}":
             Team.append(Result2)
-        elif RelationType == "Client":
+        elif RelationType == "{'Client'}":
             Clients.append(Result2)
+    #Same things for active
+    Command=("""SELECT ActiveUserID, RelationType
+            FROM REL_Projects_ActiveUsers
+            WHERE ProjectID= %s """)
+    VariTuple=[ProductID]
+    mycursor. execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    mycursor2 = mydb.cursor()
+    for ToForm in Result:
+        Key = ToForm[0]
+        RelationType = str(ToForm[1])
+        Command=("""SELECT CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) 
+                FROM ActiveUsers
+                WHERE ActiveUser_ID= %s """)
+        VariTuple=[Key]
+        mycursor2.execute(Command,VariTuple)
+        Result2 = (mycursor2.fetchall())[0][0]
+        if RelationType == "{'TeamMember'}":
+            Team.append(Result2)
+        elif RelationType == "{'Client'}":
+            Clients.append(Result2)
+    return [Team,Clients]
 
-def ConnectHero(request,Role,HeroName):
-    UserID = Authentication.GetID(request)
+def GetProductID(ProductName):
     mydb = Connect()
     mycursor = mydb.cursor()
-    Command=("""SELECT PasiveUser_ID 
+    Command=("""SELECT Project_ID
+            FROM Projects
+            WHERE Project_Name = %s """)
+    VariTuple=[ProductName]
+    mycursor. execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    return Result[0][0]
+
+def ConnectHero(request,Role,HeroName,ProductName):
+    UserID = Authentication.GetID(request)
+    ProductID = GetProductID(ProductName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT PassiveUser_ID 
                 FROM REL_ActiveUsers_PasiveUsers
-                WHERE PasiveUser_Nickname= %s AND ActiveUs """)
-    HypoNickname = [HeroName]
-    mycursor.execute(Command, HypoNickname)
-    mycursor.fetchall()
+                WHERE ActiveUser_ID =""" + str(UserID)
+    mycursor.execute(PartialCommand)
+    PassiveList = mycursor.fetchall()
+    SmoothList = ""
+    for ListPart in PassiveList:
+        SmoothList = SmoothList +", " + str(ListPart[0])
+        SmoothList = SmoothList[1:]
+    MainCommand = """SELECT PasiveUser_ID
+                   FROM PasiveUsers
+                    WHERE  PasiveUser_Nickname = %s AND
+                    PasiveUser_ID IN (""" + SmoothList + """)"""
+    VariTuple = [HeroName]
+    mycursor.execute(MainCommand,VariTuple)
+    Statement = mycursor.statement
+    Result = mycursor.fetchall()
+    try:
+        DerivatedResult = int(Result[0][0])
+        TeamInsertor = mydb.cursor()
+        INScommand = """INSERT INTO REL_Projects_PasiveUsers(ProjectID, PasiveUserID, RelationType) VALUES (%s,%s,%s)"""
+        Values = [ProductID,DerivatedResult,Role]
+        TeamInsertor.execute(INScommand,Values)
+        mydb.commit()
+    except IndexError:
+        ActiveSelector = mydb.cursor()
+        MainCommand = """SELECT ActiveUser_ID
+                   FROM ActiveUsers
+                    WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
+        ActiveSelector.execute(MainCommand,[HeroName])
+        ActiveUserID = ActiveSelector.fetchall()[0][0]
+        TeamInsertor = mydb.cursor()
+        INScommand = """INSERT INTO REL_Projects_ActiveUsers(ProjectID, ActiveUserID, RelationType) VALUES (%s,%s,%s)"""
+        Values = [ProductID,ActiveUserID,Role]
+        TeamInsertor.execute(INScommand,Values)
+        mydb.commit()
+
+def UnconnectHero(Role,HeroName,ProductName):
+    ProductID = GetProductID(ProductName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =""" + str(ProductID)
+    Consolewriter.ShowInConsole(PartialCommand)
+    mycursor.execute(PartialCommand)
+    PassiveList = mycursor.fetchall()
+    SmoothList = ""
+    Consolewriter.ShowInConsole(PassiveList)
+    for ListPart in PassiveList:
+        SmoothList = SmoothList +", " + str(ListPart[0])
+        SmoothList = SmoothList[1:]
+    Consolewriter.ShowInConsole(SmoothList)
+    MainCommand = """SELECT PasiveUser_ID
+                   FROM PasiveUsers
+                    WHERE  PasiveUser_Nickname = %s AND
+                    PasiveUser_ID IN (""" + SmoothList + ")"
+    VariTuple = [HeroName]
+    mycursor.execute(MainCommand,VariTuple)
+    Statement = mycursor.statement
+    Result = mycursor.fetchall()
+    try:
+        DerivatedResult = int(Result[0][0])
+        TeamInsertor = mydb.cursor()
+        DELcommand = """DELETE FROM REL_Projects_PasiveUsers 
+                        WHERE ProjectID = %s AND PasiveUserID = %s AND RelationType = %s"""
+        Values = [int(ProductID),DerivatedResult,Role]
+        TeamInsertor.execute(DELcommand,Values)
+        mydb.commit()
+    except IndexError:
+        ActiveSelector = mydb.cursor()
+        MainCommand = """SELECT ActiveUser_ID
+                   FROM ActiveUsers
+                    WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
+        ActiveSelector.execute(MainCommand,[HeroName])
+        ActiveUserID = ActiveSelector.fetchall()[0][0]
+        TeamInsertor = mydb.cursor()
+        DELcommand = """DELETE FROM REL_Projects_ActiveUsers
+                        WHERE ProjectID=%s AND ActiveUserID=%s AND RelationType=%s"""
+        Values = [ProductID,ActiveUserID,Role]
+        TeamInsertor.execute(DELcommand,Values)
+        mydb.commit()
+
+
 
         

@@ -4,7 +4,7 @@ import json, re,time,sys,os, time
 from pathlib import Path
 from django.urls import path
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
-import Authentication, Database, LanguageLoader
+import Authentication, Database, LanguageLoader, Consolewriter
 # Create your views here.
 
 def Home(request):
@@ -69,11 +69,40 @@ def NewProduct(request):
 
 def Product(request):
     LanguagePack = LanguageLoader.Language("ProductCreate","Czech")
+    ProductName = request.GET["OldProductName"]
+    LanguagePack["ProductName"] = ProductName
+    Team, Clients = Database.ShowHeroes(ProductName)
+    LanguagePack["Clients"] = Clients
+    LanguagePack["TeamMembers"] = Team
     Decision  = Authentication.CheckUser(request,"User\ProductCreate.html",LanguagePack)  
     return Decision
 
 def NewProductHero(request):
-    Role = request.POST["ProductHero"]
+    Authentication.QuickCheck(request)
+    StringData = request.POST["ProductHero"]
+    StringData = StringData.replace("\'", "\"")
+    ProductHero = json.loads(StringData)
+    Role = ProductHero["Role"]
     HeroName = request.POST["Nickname"]
-    Database.ConnectHero(request,Role,HeroName)
-    redirect('Product')
+    ProductName = ProductHero["ProductName"]
+    Database.ConnectHero(request,Role,HeroName,ProductName)
+    #CHANGE AS YOU DEPLOY IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    URL = "http://127.0.0.1:8000/Product?OldProductName=" + ProductName
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    return redirect(URL)
+
+def DeleteHero(request):
+    Authentication.QuickCheck(request)
+    StringData = request.GET["ToDelete"]
+    StringData = StringData.replace("\'", "\"")
+    ProductHero = json.loads(StringData)
+    Role = ProductHero["Role"]
+    HeroName = ProductHero["ExheroName"]
+    ProductName = ProductHero["ProductName"]
+    Database.UnconnectHero(Role,HeroName,ProductName)
+    #CHANGE AS YOU DEPLOY IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    URL = "http://127.0.0.1:8000/Product?OldProductName=" + ProductName
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    return redirect(URL)
