@@ -5,11 +5,11 @@ import Consolewriter, Authentication, LanguageLoader
 
 def Connect():
     mydb = mysql.connector.connect(
-    host="bejt.local",
-    user="pytlikapp",
-    passwd="Trochu-KRATS-190",
+    host="localhost",
+    user="root",
+    passwd="pouhazkouska",
     database="pytlik",
-    port ="3307")
+    port ="3306")
     return mydb
 
 def DP2 (q,w,e,r,t,z):
