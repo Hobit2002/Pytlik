@@ -24,6 +24,6 @@
   ],
   "Settings": [ "Save", "Logout" ],
   "Passives": [ "Add", "Nickname", "Email", "Info", "Logout", "Products", "Home", "Delete" ],
-  "ProductCreate": [ "NickNnameHTML", "Logout", "Delete", "Add", "Home", "ClientsHTML", "TeamHTML" ]
+  "ProductCreate": [ "NickNnameHTML", "Logout", "Delete", "Add", "Home", "ClientsHTML", "TeamHTML", "TasksHTML" ]
 
 }

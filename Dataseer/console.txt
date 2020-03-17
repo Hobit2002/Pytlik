@@ -1,66 +1,12 @@
 
-David Nadrchal
-Jonáš Nadrchal
-David Nadrchal
-David Nadrchal
-['TeamMember', 'Marolda', 'Obídek']
-[]
-
-David Nadrchal
-Jonáš Nadrchal
-David Nadrchal
-David Nadrchal
-24
-[]
-
-SELECT PassiveUser_ID 
-                FROM REL_ActiveUsers_PasiveUsers
-                WHERE ActiveUser_ID =24
-[]
-
-SELECT PassiveUser_ID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-SELECT PasiveUser_ID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,), (31584284709,), (31584284709,)]
-1584284709, 31584284709, 31584284709
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,), (31584284709,), (31584284709,)]
-1584284709, 31584284709, 31584284709
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,), (31584284709,), (31584284709,)]
-1584284709, 31584284709, 31584284709
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,), (31584284709,), (31584284709,)]
-1584284709, 31584284709, 31584284709
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,), (31584284709,), (31584284709,)]
-1584284709, 31584284709, 31584284709
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,)]
- 31584284709
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,)]
- 31584284709
-SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =2
-[(31584284709,)]
- 31584284709
+['CookSQL', 'EatSQL', 'TidySQL']
+[('CookSQL', None, None), ('EatSQL', None, None), ('TidySQL', None, None)]
+('CookSQL', None, None)
+[{'Task': 'Uvaøit', 'Hero': ''}]
+('CookSQL', None, None)
+[{'Task': 'Uvaøit', 'Hero': ''}]
+('EatSQL', None, None)
+[{'Task': 'Uvaøit', 'Hero': ''}, {'Task': 'Schlamstnout', 'Hero': ''}]
+('TidySQL', None, None)
+[{'Task': 'Uvaøit', 'Hero': ''}, {'Task': 'Schlamstnout', 'Hero': ''}, {'Task': 'Olízat stùl', 'Hero': ''}]
+['CookSQL', 'EatSQL', 'TidySQL']

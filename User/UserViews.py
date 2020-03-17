@@ -74,6 +74,8 @@ def Product(request):
     Team, Clients = Database.ShowHeroes(ProductName)
     LanguagePack["Clients"] = Clients
     LanguagePack["TeamMembers"] = Team
+    Tasks = Database.ShowTasks(ProductName)
+    LanguagePack["Tasks"] = Tasks
     Decision  = Authentication.CheckUser(request,"User\ProductCreate.html",LanguagePack)  
     return Decision
 
@@ -86,10 +88,7 @@ def NewProductHero(request):
     HeroName = request.POST["Nickname"]
     ProductName = ProductHero["ProductName"]
     Database.ConnectHero(request,Role,HeroName,ProductName)
-    #CHANGE AS YOU DEPLOY IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    URL = "http://127.0.0.1:8000/Product?OldProductName=" + ProductName
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    URL = CallProduct(ProductName)
     return redirect(URL)
 
 def DeleteHero(request):
@@ -101,8 +100,32 @@ def DeleteHero(request):
     HeroName = ProductHero["ExheroName"]
     ProductName = ProductHero["ProductName"]
     Database.UnconnectHero(Role,HeroName,ProductName)
+    URL = CallProduct(ProductName)
+    return redirect(URL)
+
+def DeleteTask(request):
+    Authentication.QuickCheck(request)
+    StringData = request.GET["ToDelete"]
+    StringData = StringData.replace("\'", "\"")
+    DyingTask = json.loads(StringData)
+    TaskName = DyingTask["TaskName"]
+    ProductName = DyingTask["ProductName"]
+    Database.DeleteTask(TaskName,ProductName)
+    URL = CallProduct(ProductName)
+    return redirect(URL)
+
+def CallProduct(ProductName):
     #CHANGE AS YOU DEPLOY IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     URL = "http://127.0.0.1:8000/Product?OldProductName=" + ProductName
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    return URL
+
+def NewTask(request):
+    Authentication.QuickCheck(request)
+    ProductName = request.GET["ProductName"]
+    TaskName = request.GET["TaskName"]
+    HeroName = request.GET["HeroName"]
+    Database.CreateTask(ProductName,TaskName,HeroName)
+    URL = CallProduct(ProductName)
     return redirect(URL)

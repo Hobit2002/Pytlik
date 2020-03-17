@@ -32,17 +32,16 @@
             </form>
         </div>
 
-                <div>
-            <h3>{{ClientsHTML}}</h3>
-            {% for Client in Clients %}
-            <form action="DeleteHero"> <p>{{Client}}<button type="submit" name="ToDelete" value="{'Role':'Client','ProductName':'{{ProductName}}', 'ExheroName':'{{Client}}'}">{{Delete}}</button></p></form>
+        <div>
+            <h3>{{TasksHTML}}</h3>
+            {% for Task in Tasks %}
+            <form action="DeleteTask"><p>{{Task.Task}}  {{TeamHTML}}:{{TeamHTML.Hero}}<input name="New" type="text"></p><button name="ToDelete" value="{'TaskName':'{{Task.Task}}','ProductName':'{{ProductName}}'}">{{Delete}}</button></form>
             {% endfor %}
-            <form action="NewProductHero" , method="post">
-                {% csrf_token %}
-                <div id="InfoFrame">
-                    <input type="text" name="Nickname" placeholder="{{NickNnameHTML}}">
-                </div>
-                <button value="{'Role':'Client','ProductName':'{{ProductName}}'}" name="ProductHero">{{Add}}</button>
+
+            <form action="NewTask">
+                <input type="text" name="TaskName" placeholder="{{TasksHTML}}">
+                <input type="text" name="HeroName" placeholder="{{NickNnameHTML}}">
+                <button value="{{ProductName}}" name="ProductName">{{Add}}</button>
             </form>
         </div>
 

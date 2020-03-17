@@ -1,15 +1,15 @@
 import mysql.connector
-import sys,os
+import sys,os, json
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
-import Consolewriter, Authentication
+import Consolewriter, Authentication, LanguageLoader
 
 def Connect():
     mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="pouhazkouska",
+    host="bejt.local",
+    user="pytlikapp",
+    passwd="Trochu-KRATS-190",
     database="pytlik",
-    port ="3306")
+    port ="3307")
     return mydb
 
 def DP2 (q,w,e,r,t,z):
@@ -172,7 +172,6 @@ def CreateProduct(request, Name, Template, ReleaseDate, AbsorbationTime):
     VariTuple=[Name, TemplateID, ReleaseDate, AbsorbationTime]
     mycursor. execute(Command,VariTuple)
     mydb.commit()
-    LateAgent = mydb.cursor()
     Command=("""SELECT Project_ID
             FROM Projects
             WHERE Project_Name = %s AND `Project_Template`= %s AND Project_Release= %s AND Project_AbsorbTime= %s""")
@@ -184,8 +183,24 @@ def CreateProduct(request, Name, Template, ReleaseDate, AbsorbationTime):
     Command="""INSERT INTO `REL_Projects_ActiveUsers`(`ProjectID`,
     `ActiveUserID`, RelationType) VALUES (%s,%s,%s)"""
     IDs = [ProjectID,UserID,'Boss']
-    mycursor. execute(Command,IDs)
+    mycursor.execute(Command,IDs)
     mydb.commit()
+    #Set up tasks
+    TaskSelector = mydb.cursor()
+    Command=("""SELECT Template_Tasks
+            FROM Templates
+            WHERE Template_Name = %s""")
+    VariTuple=[Template]
+    TaskSelector.execute(Command,VariTuple)
+    RawString = (TaskSelector.fetchall())[0][0]
+    Tasks = json.loads(RawString)
+    Consolewriter.ShowInConsole(Tasks)
+    for Task in Tasks:
+        TaskInsertor = mydb.cursor()
+        Command = """INSERT INTO Tasks(Project_ID, Task_Content) VALUES(%s, %s)"""
+        Values = [ProjectID, Task]
+        TaskInsertor.execute(Command,Values)
+        mydb.commit()
     return ProjectID
 
 def ShowHeroes(ProductName):
@@ -298,15 +313,12 @@ def UnconnectHero(Role,HeroName,ProductName):
     PartialCommand="""SELECT PasiveUserID 
                 FROM REL_Projects_PasiveUsers
                 WHERE ProjectID =""" + str(ProductID)
-    Consolewriter.ShowInConsole(PartialCommand)
     mycursor.execute(PartialCommand)
     PassiveList = mycursor.fetchall()
     SmoothList = ""
-    Consolewriter.ShowInConsole(PassiveList)
     for ListPart in PassiveList:
         SmoothList = SmoothList +", " + str(ListPart[0])
         SmoothList = SmoothList[1:]
-    Consolewriter.ShowInConsole(SmoothList)
     MainCommand = """SELECT PasiveUser_ID
                    FROM PasiveUsers
                     WHERE  PasiveUser_Nickname = %s AND
@@ -336,6 +348,117 @@ def UnconnectHero(Role,HeroName,ProductName):
         Values = [ProductID,ActiveUserID,Role]
         TeamInsertor.execute(DELcommand,Values)
         mydb.commit()
+
+def ShowTasks(ProductName):
+    ProductID = GetProductID(ProductName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT Task_Content, Hero_ID, Hero_Nature
+                FROM Tasks
+                WHERE Project_ID =""" + str(ProductID)
+    mycursor.execute(PartialCommand)
+    TaskList = mycursor.fetchall()
+    ToSend = []
+    for AppendMaterial in TaskList:
+        Task = AppendMaterial[0]
+        ToSend.append({})
+        UpdatedDict = ToSend[(len(ToSend)-1)]
+        #Insert task content
+        Task = LanguageLoader.LoadWord(Task, "Czech")
+        UpdatedDict["Task"] = Task
+        #Insert hero
+        Samuel = mydb.cursor()
+        BlessedLocation = AppendMaterial[2]
+        HeroID = AppendMaterial[1]
+        if BlessedLocation == "Pasive":
+            ProphetMission = """SELECT PasiveUser_Nickname
+                                FROM PasiveUsers
+                                WHERE PasiveUser_ID=%s"""
+            Samuel.execute(ProphetMission, [HeroID])
+            Kings = Samuel.fetchall()
+            KingDavid = Kings[0][0]
+            UpdatedDict["Hero"] = KingDavid
+        elif BlessedLocation =="Active":
+            ProphetMission = """SELECT CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames)
+                                FROM ActiveUsers
+                                WHERE ActiveUser_ID=%s"""
+            Samuel.execute(ProphetMission, [HeroID])
+            Kings = Samuel.fetchall()
+            KingSaul = Kings[0][0]
+            UpdatedDict["Hero"]=KingSaul
+        else:
+            UpdatedDict["Hero"] = ""
+
+    return ToSend
+
+def DeleteTask(TaskName,ProductName):
+    TaskID = GetTaskID(TaskName,ProductName)
+    mydb = Connect()
+    LazyGuy = mydb.cursor()
+    DELcommand = """DELETE FROM Tasks 
+                    WHERE Task_ID = %s"""
+    LazyGuy.execute(DELcommand,[TaskID])
+    mydb.commit()
+    return True
+
+def GetTaskID(TaskName,ProductName):
+    TaskContent = LanguageLoader.GetKeys([TaskName],"Czech")[0]
+    ProductID = GetProductID(ProductName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    Command = """SELECT Task_ID
+                  FROM Tasks
+                  WHERE Task_Content = %s AND Project_ID = %s"""
+    Values = [TaskContent, ProductID]
+    mycursor.execute(Command,Values)
+    TaskID = mycursor.fetchall()
+    return TaskID[0][0]
+
+def CreateTask(ProductName,TaskName,HeroName):
+    ProductID = GetProductID(ProductName)
+    DatabaseName = TaskName +str(ProductID)
+    LanguageLoader.AddToDictionary("Czech",DatabaseName,TaskName)
+    TaskName = DatabaseName
+    #Investigate, if HeroName referes to Active or Pasive user
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =""" + str(ProductID)
+    mycursor.execute(PartialCommand)
+    PassiveList = mycursor.fetchall()
+    SmoothList = ""
+    for ListPart in PassiveList:
+        SmoothList = SmoothList +", " + str(ListPart[0])
+        SmoothList = SmoothList[1:]
+    Holmes = mydb.cursor()
+    Command = """SELECT PasiveUser_ID
+                 FROM PasiveUsers
+                 WHERE PasiveUser_Nickname = %s AND PasiveUser_ID IN (""" + SmoothList + """)"""
+    Holmes.execute(Command, [HeroName])
+    HolmesStatement = Holmes.statement
+    Result = Holmes.fetchall()
+    if Result==[] and HeroName!="":
+        Poirot = mydb.cursor()
+        MainCommand = """SELECT ActiveUser_ID
+                   FROM ActiveUsers
+                    WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
+        Poirot.execute(MainCommand,[HeroName])
+        ID = Poirot.fetchall()[0][0]
+        Nature = "Active"
+    elif len(Result)==1:
+        ID = Result[0][0]
+        Nature = "Pasive"
+    elif HeroName == "":
+        ID =""
+        Nature=""
+    Leonardo = mydb.cursor()
+    ArtVision = """INSERT INTO Tasks(Project_ID,Task_Content,Hero_ID, Hero_Nature)
+                   VALUES(%s,%s,%s,%s)"""
+    Values=[ProductID, TaskName,ID,Nature]
+    Leonardo.execute(ArtVision,Values)
+    mydb.commit()
+
 
 
 

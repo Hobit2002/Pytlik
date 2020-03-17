@@ -41,6 +41,10 @@
     "NewHTML": "Nový",
     "ClientsHTML": "Klienti",
     "TeamHTML": "Tým",
-    "NickNnameHTML": "Jméno/Pøezdívka"
+    "NickNnameHTML": "Jméno/Pøezdívka",
+    "TasksHTML": "Úkoly",
+    "CookSQL": "Uvaøit",
+    "EatSQL": "Schlamstnout",
+    "TidySQL": "Olízat stùl"
   }
 }

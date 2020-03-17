@@ -35,7 +35,9 @@ urlpatterns = [
     path('NewProduct',UserViews.NewProduct, name ="NewProduct"),
     path('Product',UserViews.Product, name ="Product"),
     path('NewProductHero',UserViews.NewProductHero, name ="NewProductHero"),
-    path('DeleteHero',UserViews.DeleteHero, name ="DeleteHero")
+    path('DeleteHero',UserViews.DeleteHero, name ="DeleteHero"),
+    path('DeleteTask',UserViews.DeleteTask, name ="DeleteTask"),
+    path('NewTask',UserViews.NewTask, name ="NewTask")
 
 ]
 urlpatterns += staticfiles_urlpatterns()
