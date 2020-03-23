@@ -24,7 +24,8 @@ urlpatterns = [
     path('', include('Niemand.urlsNiemand')),
     path('login',include('registrationstuff.urlsRegistrationstuff')),
     path('registration',RegistrationViews.registration, name="Registration"),
-    path('PutMeIn',RegistrationViews.Putin, name="Putin"),
+    path('FinishReg',RegistrationViews.USRvertify,name="USRvertify"),
+    path('PutMeIn',RegistrationViews.SendMail, name="SendMail"),
     path('PutOut',RegistrationViews.Putout, name="Putout"),
     path('Home',UserViews.Home, name ="Home"),
     path('settings',UserViews.Settings, name ="Settings"),
@@ -37,7 +38,15 @@ urlpatterns = [
     path('NewProductHero',UserViews.NewProductHero, name ="NewProductHero"),
     path('DeleteHero',UserViews.DeleteHero, name ="DeleteHero"),
     path('DeleteTask',UserViews.DeleteTask, name ="DeleteTask"),
-    path('NewTask',UserViews.NewTask, name ="NewTask")
+    path('NewTask',UserViews.NewTask, name ="NewTask"),
+    path('SelfDeleteHero',UserViews.SelfDeleteHero, name ="SelfDeleteHero"),
+    path('DeleteProduct',UserViews.DeleteProduct, name ="DeleteProduct"),
+    path('NewTaskHero',UserViews.NewTaskHero, name ="NewTaskHero"),
+    path('DeleteTaskHero',UserViews.DeleteTaskHero, name ="DeleteTaskHero"),
+    path('ResetTaskTime',UserViews.ResetTaskTime, name ="ResetTaskTime"),
+    path('Search',UserViews.Search, name="Search"),
+    path('Diary',UserViews.Diary, name="Diary"),
+    path('SubmitDiary',UserViews.SubmitDiary, name="SubmitDiary")
 
 ]
 urlpatterns += staticfiles_urlpatterns()

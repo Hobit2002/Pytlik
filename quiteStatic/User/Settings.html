@@ -9,9 +9,13 @@
             <input type="text" id="FirstName" name="FirstName">
             <input type="text" id="SecondName" name="SecondName">
             <input type="text" id="Email" name="Email">
-            <input type="text" id="Birthday" name="Birthday">
+            <input type="date" id="Birthday" name="Birthday">
             <input type="text" id="Year" name="Year">
-            <input type="text" id="Sex" name="Sex">
+            <select name="Sex" id="Sex">
+                <option value="Male">{{MaleHTML}}</option>
+                <option value="Female">{{FemaleHTML}}</option>
+                <option value="Other">{{OtherSexHTML}}</option>
+            </select>
             <input type="text" id="Info" name="Info">
 
             <button>

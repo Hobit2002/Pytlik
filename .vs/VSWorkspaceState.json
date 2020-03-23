@@ -1,16 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\catholiclyStatic",
     "\\Dataseer",
     "\\languages",
-    "\\Niemand",
     "\\Pytlik",
     "\\quiteStatic",
-    "\\quiteStatic\\Registrationstuff",
     "\\quiteStatic\\User",
     "\\User"
   ],
-  "SelectedNode": "\\Archive",
+  "SelectedNode": "\\quiteStatic\\User\\Diary.html",
   "PreviewInSolutionExplorer": false
 }

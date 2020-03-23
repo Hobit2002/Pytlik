@@ -20,10 +20,13 @@
     "TemplateHTML",
     "ReleaseTimeHTML",
     "AbsorbTimeHTML",
-    "NewHTML"
+    "NewHTML",
+    "SearchHTML",
+    "DiaryHTML"
   ],
-  "Settings": [ "Save", "Logout" ],
-  "Passives": [ "Add", "Nickname", "Email", "Info", "Logout", "Products", "Home", "Delete" ],
-  "ProductCreate": [ "NickNnameHTML", "Logout", "Delete", "Add", "Home", "ClientsHTML", "TeamHTML", "TasksHTML" ]
+  "Settings": [ "Save", "Logout", "MaleHTML", "FemaleHTML", "OtherSexHTML", "SearchHTML", "DiaryHTML" ],
+  "Passives": [ "Add", "Nickname", "Email", "Info", "Logout", "Products", "Home", "Delete", "SearchHTML", "DiaryHTML" ],
+  "ProductCreate": [ "NickNnameHTML", "Logout", "Delete", "Add", "Home", "ClientsHTML", "TeamHTML", "TasksHTML", "SelfDeleteHTML", "Save", "MoreHTML", "LessHTML", "SearchHTML", "DiaryHTML" ],
+  "Diary": [ "Logout", "DiaryHTML", "SearchHTML", "MoreHTML","SubmitHTML" ]
 
 }

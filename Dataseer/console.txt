@@ -1,12 +1,18 @@
 
-['CookSQL', 'EatSQL', 'TidySQL']
-[('CookSQL', None, None), ('EatSQL', None, None), ('TidySQL', None, None)]
-('CookSQL', None, None)
-[{'Task': 'Uvaøit', 'Hero': ''}]
-('CookSQL', None, None)
-[{'Task': 'Uvaøit', 'Hero': ''}]
-('EatSQL', None, None)
-[{'Task': 'Uvaøit', 'Hero': ''}, {'Task': 'Schlamstnout', 'Hero': ''}]
-('TidySQL', None, None)
-[{'Task': 'Uvaøit', 'Hero': ''}, {'Task': 'Schlamstnout', 'Hero': ''}, {'Task': 'Olízat stùl', 'Hero': ''}]
-['CookSQL', 'EatSQL', 'TidySQL']
+Ahoj, mìl by ses jmenovat Dáda Nadrchal. 
+ Je-li tomu tak, máš šanci se stát mým milovaným novým uživatelem a to kliknutím na tuto adresu:http://127.0.0.1:8000/FinishReg?token=8727969895. 
+ Pac a kusadlo, 
+ Pytlík
+
+
+Sent!
+Sent!
+Sent!
+Sent!
+Sent!
+Sent!
+Sent!
+Sent!
+Sent!
+Sent!
+Sent!

@@ -27,10 +27,9 @@ def CheckUser(request, Page, LanguagePack):
         Command="""SELECT Session_UserID, Session_UserDevice FROM Session WHERE Session_UserToken = %s"""
         TechSpy.execute(Command,[int(token)])
         Report = TechSpy.fetchall()
-        #Consolewriter.ShowInConsole(Report)
+        
         if Report[0][1]==ip.visitor_ip_address(request):
             NewToken = int(str(Report[0][0]) + str(round(time.time())))
-
             NewLanguagePack, Context = BuildPack(Report[0][0], request, LanguagePack)
             Wish = render(request, Page, NewLanguagePack)
             Wish.set_cookie("BasicInfo", str(NewToken),max_age = 7200)
@@ -77,7 +76,11 @@ def BuildPack (ID, request, LanguagePack):
         MetaInfo = Database.ShowAll(ID)
         UserParameters = ["Contact", "FirstName", "OtherNames", "Image", "Info", "Sex", "Birthday", "Year"]
         for ParaIndex in range(0,len(UserParameters)):
-            LanguagePack[UserParameters[ParaIndex]] = MetaInfo[ParaIndex]
+            Key = UserParameters[ParaIndex]
+            Value = MetaInfo[ParaIndex]
+            if Key=="Sex" and Value != None:
+                Value = LanguageLoader.LoadWord(str(Value),"Czech")
+            LanguagePack[Key] = Value
 
         Context = 0
         return [LanguagePack, Context]
@@ -90,3 +93,4 @@ def GetID(request):
     TechSpy.execute(Command,[int(token)])
     ID = TechSpy.fetchall()[0][0]
     return ID
+

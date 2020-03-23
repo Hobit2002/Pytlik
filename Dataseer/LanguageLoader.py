@@ -2,7 +2,7 @@ import json, re,time,sys,os, time
 from pathlib import Path
 
 def Language(PageName,Language):
-    InnerText = open('languages\pages2.json','r')
+    InnerText = open('languages\pages.json','r')
 
     Pages = json.load(InnerText)
     PageContent = Pages[PageName]

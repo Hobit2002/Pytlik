@@ -1,0 +1,55 @@
+{% extends "activeframe.html" %}
+{% block content %}
+{% load static %}
+<body>
+    <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
+        <div><h1>{{DiaryHTML}}</h1></div>
+       <div>
+           <form action="SubmitDiary">
+               <p>
+                   {% for Emotion in DiaryData.Emotions %}
+                   <label for='{{Emotion}}'>{{Emotion}}:</label><input type='number' min='0' max='10' name='{{Emotion}}'>
+                   {% endfor %}
+               </p>
+               <select name="TypeOfActivity" id="Overall">
+                   {% for Opinion in DiaryData.Activities.keys %}
+                   <option value='{"Javascript":"{{Opinion|cut:" "|cut:"/"|cut:","}}","Python":"{{Opinion}}"}'>{{Opinion}}</option>
+                   {% endfor %}
+               </select>
+               <button onclick="More()" type="button">{{MoreHTML}}</button>
+               <div id="MoreQuestions">
+               </div>
+           </form>
+        </div>
+ <script>
+     var Expansions = {
+      {% for Overall, Details in DiaryData.Activities.items %}
+      {{ Overall|cut:" "|cut:"/"|cut:"," }} : ""{% for Detail in Details %}{% if Detail.1|length > 1 %}
+         +"<select name='{{Detail.1}}'>"+
+         {% for SoSmall in Detail %}
+         "<option value='{{SoSmall}}'>{{SoSmall}}</option>"+
+         {% endfor %}
+          "</select>"
+         {% elif Detail.1|length == 1 %}
+         +"<label for='{{Detail}}'>{{Detail}}:</label><input type='number' min='0' max='10' name='{{Detail}}'>"
+     {% endif %}
+         {% endfor %}
+     
+     ,
+     {% endfor %}
+     }
+     function More() {
+         var TriggerCoordinates = document.getElementById("Overall").value
+         TriggerCoordinates = JSON.parse(TriggerCoordinates)
+         console.log(TriggerCoordinates)
+         TriggerCoordinates = TriggerCoordinates["Javascript"] 
+         var HTMLToAdd = Expansions[String(TriggerCoordinates)]
+         var SubmitButton = "<button type='submit'>{{SubmitHTML}}</button>"
+         HTMLToAdd = HTMLToAdd + SubmitButton
+         document.getElementById("MoreQuestions").innerHTML = HTMLToAdd
+     }
+
+     
+ </script>
+</body>
+ {% endblock %}

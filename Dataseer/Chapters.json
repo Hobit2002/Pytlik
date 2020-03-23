@@ -1,0 +1,82 @@
+{
+  "Pohyb venku": [
+    [
+      "S kamarády",
+      "Na nákup",
+      "Do/z práce",
+      "Procházka",
+      "Sport"
+    ]
+  ],
+  "Práce": [
+    [
+      "Doma",
+      "V kanceláøi",
+      "Venku",
+      "V McDonaldu èi podobném",
+      "Prùvodce návštìvníkù",
+      "Jakákoliv forma uèitelství"
+    ]
+  ],
+  "Videohry": [
+    [
+      "MOBA",
+      "Strategie",
+      "FPS (støíleèka)",
+      "Battle Royale",
+      "Jednoduché onlinovky (Superhry.cz)",
+      "Oddechové(Candy Crush)",
+    ]
+  ],
+  "Film": [
+    [
+      "Seriál",
+      "Akèní",
+      "Horor",
+      "Romantický",
+      "Komedie",
+      "Èeská novinka(zhruba posledních 15 let)",
+      "Blockbuster(Marvel, StarWars…)",
+      "Detektivka",
+      "Sitcom (Teorie velkého tøesku)"
+    ]
+  ],
+  "Ètení": [
+    [ "Èesky", "Anglicky", "Nìmecky", "Francouzsky", "Zulu", "Jinak" ],
+    [ "Noviny", "Èasopis", "Komix", "Román", "Detektivka", "Odbornì zamìøená kniha(ne uèebnice!)", "Poezie" ]
+  ],
+  "Jídlo": [
+    [
+      "Italské typu špagety èi pizza",
+      "Typu guláš",
+      "Fastfood",
+      "Asijské",
+      "Polévka",
+      "Rohlík/chleba/bageta",
+    ],
+    "Kvalita"
+  ],
+  "Stolní hry": [
+    [ "Strategie(Carcassonne ale i poker)", "Postøehovka", "O náhodì(napø. prší)" ],
+    "Obliba", "Výsledky"
+  ],
+  "Pohybová aktivita doma": [ [ "Pingpong", "Cvièení" ] ],
+  "Uèení se do školy": [
+    [ "Zemìpis", "Dìjepis", "Pøírodopis/Biologie", "Matematika", "Fyzika", "Obèanská výchova/ZSV", "Èeština", "Chemie" ]
+  ],
+  "Kutilství a jiné tvoøivé aktivity": [
+    [ "Výtvarnièení", "Skládání hudby", "Psaní", "Programování", "Práce se døevem", "Spravování spotøebièù" ]
+  ],
+  "Domácí práce": [
+    [ "úklid", "vìšení/skládání prádla",
+      "úklid ze stolu/pøíprava stolu pro jídlo",
+      "mytí nádobí",
+      "vaøení",
+      "starání se o mladší sourozence",
+      "luxování/zametání/vytírání podlahy" ]
+  ],
+  "Prokrastinace": [],
+  "Byl/a jsem tak unavený/á, že jsem se na nic poøádného nezmohl/a": [],
+  "Spánek": [],
+  "Nevzpomínám si, asi to nebylo nic, co by stálo za øeè": []
+}

@@ -1,16 +1,42 @@
 import mysql.connector
-import sys,os, json
+import sys,os, json, re, time
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
 import Consolewriter, Authentication, LanguageLoader
 
 def Connect():
     mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="pouhazkouska",
+    host="bejt.local",
+    user="pytlikapp",
+    passwd="Trochu-KRATS-190",
     database="pytlik",
-    port ="3306")
+    port ="3307")
     return mydb
+
+def PreRegister(FirstName, SecondName, Email, Birthdate, Password, Token):
+    mydb = Connect()
+    mycursor2 = mydb.cursor()
+    Command="""INSERT INTO PreRegistred(PreRegistred_FirstName, PreRegistred_OtherNames, PreRegistred_Password, PreRegistred_Birthdate,
+    PreRegistred_Email, PreRegistred_Token) VALUES (%s,%s,%s,%s,%s,%s)"""
+    VariTuple=[FirstName, SecondName, Password,Birthdate,Email, Token]
+    mycursor2.execute(Command,VariTuple)
+    mydb.commit()
+
+def FullRegGet(token):
+    Shire = Connect()
+    Bilbo = Shire.cursor()
+    UnexpectedJounuery= """SELECT PreRegistred_FirstName, PreRegistred_OtherNames, PreRegistred_Password, PreRegistred_Birthdate
+                        FROM PreRegistred WHERE PreRegistred_Token = %s"""
+    Bilbo.execute(UnexpectedJounuery,[token])
+    DragonTreasure = Bilbo.fetchall()[0]
+    return DragonTreasure
+
+def KillPreReg(Email):
+    ShadowShire = Connect()
+    DarkBilbo = ShadowShire.cursor()
+    MordorQuest = """DELETE
+                    FROM PreRegistred WHERE PreRegistred_Email = %s"""
+    DarkBilbo.execute(MordorQuest,[Email])
+    ShadowShire.commit()
 
 def DP2 (q,w,e,r,t,z):
     mydb = Connect()
@@ -58,13 +84,13 @@ def ShowAll(ID):
     mydb.commit()
     return W[0]
 
-def UpdateUser(FirstName, SecondName, Email, Year, Info, ID):
+def UpdateUser(FirstName, SecondName, Email, Year, Info,Sex, Birthday, ID):
     mydb = Connect()
     mycursor2 = mydb.cursor()
     Command=("""UPDATE ActiveUsers
-               SET ActiveUser_FirstName= %s, ActiveUser_OtherNames= %s, ActiveUser_Email= %s, ActiveUser_Year= %s, ActiveUser_Info = %s         
+               SET ActiveUser_FirstName= %s, ActiveUser_OtherNames= %s, ActiveUser_Email= %s, ActiveUser_Year= %s, ActiveUser_Info = %s, ActiveUser_Sex = %s, ActiveUser_Birthday = %s         
                 WHERE ActiveUser_ID = %s """)
-    DataPack = (FirstName, SecondName, Email, Year, Info, ID)
+    DataPack = (FirstName, SecondName, Email, Year, Info, Sex, Birthday, ID)
     mycursor2.execute(Command,DataPack)
     mydb.commit()
 
@@ -130,8 +156,10 @@ def UnconnectPasive(ToUnconnect,request):
             Breaker.execute(Command,[Key])
             mydb.commit()
 
-def GetProducts(request):
-    ID = Authentication.GetID(request)
+def GetProducts(request, ID=""):
+    if not ID:
+        ID = Authentication.GetID(request)
+
     mydb = Connect()
     mycursor = mydb.cursor()
     Command=("""SELECT ProjectID
@@ -141,6 +169,7 @@ def GetProducts(request):
     mycursor. execute(Command,VariTuple)
     Result = mycursor.fetchall()
     FinalResult = []
+    FullNames = []
     for ToForm in Result:
         Key = ToForm[0]
         Command=("""SELECT Project_Name 
@@ -148,8 +177,15 @@ def GetProducts(request):
                 WHERE Project_ID= %s """)
         VariTuple=[Key]
         mycursor.execute(Command,VariTuple)
-        Result2 = mycursor.fetchall()
-        FinalResult.append(Result2[0][0])
+        Result2 = mycursor.fetchall()[0][0]
+        if Result2 not in FullNames:
+            FullNames.append(Result2)
+            BaseNameForm = re.compile(r'(.*)ßđ€9@' )
+            BaseNameQuest = BaseNameForm.search(Result2)
+            BasicName = BaseNameQuest.group()
+            BasicName = BasicName[:(len(BasicName)-5)]
+            ProductPack = {"BasicName":BasicName, "DatabaseName":Result2}
+            FinalResult.append(ProductPack)
     return FinalResult
 
 def GetTemplateID(Template):
@@ -166,6 +202,8 @@ def GetTemplateID(Template):
 def CreateProduct(request, Name, Template, ReleaseDate, AbsorbationTime):
     mydb = Connect()
     mycursor = mydb.cursor()
+    token = request.COOKIES["BasicInfo"]
+    Name = Name +"ßđ€9@"+str(token)
     Command="""INSERT INTO `Projects`(`Project_Name`,
     `Project_Template`, Project_Release, Project_AbsorbTime) VALUES (%s,%s,%s,%s)"""
     TemplateID = GetTemplateID(Template)
@@ -194,11 +232,10 @@ def CreateProduct(request, Name, Template, ReleaseDate, AbsorbationTime):
     TaskSelector.execute(Command,VariTuple)
     RawString = (TaskSelector.fetchall())[0][0]
     Tasks = json.loads(RawString)
-    Consolewriter.ShowInConsole(Tasks)
     for Task in Tasks:
         TaskInsertor = mydb.cursor()
-        Command = """INSERT INTO Tasks(Project_ID, Task_Content) VALUES(%s, %s)"""
-        Values = [ProjectID, Task]
+        Command = """INSERT INTO Tasks(Project_ID, Task_Content, TasK_Deadline) VALUES(%s, %s, %s)"""
+        Values = [ProjectID, Task, ReleaseDate]
         TaskInsertor.execute(Command,Values)
         mydb.commit()
     return ProjectID
@@ -278,14 +315,17 @@ def ConnectHero(request,Role,HeroName,ProductName):
     for ListPart in PassiveList:
         SmoothList = SmoothList +", " + str(ListPart[0])
         SmoothList = SmoothList[1:]
-    MainCommand = """SELECT PasiveUser_ID
-                   FROM PasiveUsers
-                    WHERE  PasiveUser_Nickname = %s AND
-                    PasiveUser_ID IN (""" + SmoothList + """)"""
-    VariTuple = [HeroName]
-    mycursor.execute(MainCommand,VariTuple)
-    Statement = mycursor.statement
-    Result = mycursor.fetchall()
+    if len(SmoothList)>1:
+        MainCommand = """SELECT PasiveUser_ID
+                       FROM PasiveUsers
+                        WHERE  PasiveUser_Nickname = %s AND
+                        PasiveUser_ID IN (""" + SmoothList + """)"""
+        VariTuple = [HeroName]
+        mycursor.execute(MainCommand,VariTuple)
+        Statement = mycursor.statement
+        Result = mycursor.fetchall()
+    else:
+        Result = ""
     try:
         DerivatedResult = int(Result[0][0])
         TeamInsertor = mydb.cursor()
@@ -306,10 +346,20 @@ def ConnectHero(request,Role,HeroName,ProductName):
         TeamInsertor.execute(INScommand,Values)
         mydb.commit()
 
-def UnconnectHero(Role,HeroName,ProductName):
+def UnconnectHero(Role,ProductName,HeroName="", HeroID=""):
     ProductID = GetProductID(ProductName)
     mydb = Connect()
     mycursor = mydb.cursor()
+    #Self delete
+    if HeroID != "":
+        TeamInsertor = mydb.cursor()
+        DELcommand = """DELETE FROM REL_Projects_ActiveUsers
+                        WHERE ProjectID=%s AND ActiveUserID=%s AND RelationType=%s"""
+        Values = [ProductID,HeroID,Role]
+        TeamInsertor.execute(DELcommand,Values)
+        mydb.commit()
+        return True
+    #Delete by Boss
     PartialCommand="""SELECT PasiveUserID 
                 FROM REL_Projects_PasiveUsers
                 WHERE ProjectID =""" + str(ProductID)
@@ -355,54 +405,58 @@ def ShowTasks(ProductName):
     mycursor = mydb.cursor()
     PartialCommand="""SELECT Task_Content, Hero_ID, Hero_Nature
                 FROM Tasks
-                WHERE Project_ID =""" + str(ProductID)
+                WHERE Project_ID =""" + str(ProductID) + """ ORDER BY Task_DeadLine"""
+                
     mycursor.execute(PartialCommand)
     TaskList = mycursor.fetchall()
     ToSend = []
+    SetUpTasks = []
     for AppendMaterial in TaskList:
-        Task = AppendMaterial[0]
-        ToSend.append({})
-        UpdatedDict = ToSend[(len(ToSend)-1)]
-        #Insert task content
-        Task = LanguageLoader.LoadWord(Task, "Czech")
-        UpdatedDict["Task"] = Task
-        #Insert hero
+        RealTask = AppendMaterial[0]
+        if RealTask not in SetUpTasks:
+            SetUpTasks.append(RealTask)
+            ToSend.append({})
+            UpdatedDict = ToSend[(len(ToSend)-1)]
+            #Insert task content
+            Task = LanguageLoader.LoadWord(RealTask, "Czech")
+            UpdatedDict["Task"] = Task
+            UpdatedDict["RealTask"] = RealTask
+            UpdatedDict["Hero"] = []
+        else:
+            UpdatedDict = ToSend[SetUpTasks.index(RealTask)]
+
+            #Insert hero
         Samuel = mydb.cursor()
         BlessedLocation = AppendMaterial[2]
         HeroID = AppendMaterial[1]
-        if BlessedLocation == "Pasive":
+        if str(BlessedLocation) == "{'Pasive'}":
             ProphetMission = """SELECT PasiveUser_Nickname
-                                FROM PasiveUsers
-                                WHERE PasiveUser_ID=%s"""
+                                 FROM PasiveUsers
+                                 WHERE PasiveUser_ID=%s"""
             Samuel.execute(ProphetMission, [HeroID])
             Kings = Samuel.fetchall()
             KingDavid = Kings[0][0]
-            UpdatedDict["Hero"] = KingDavid
-        elif BlessedLocation =="Active":
+            UpdatedDict["Hero"].append(KingDavid)
+        elif str(BlessedLocation) =="{'Active'}":
             ProphetMission = """SELECT CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames)
                                 FROM ActiveUsers
                                 WHERE ActiveUser_ID=%s"""
             Samuel.execute(ProphetMission, [HeroID])
             Kings = Samuel.fetchall()
             KingSaul = Kings[0][0]
-            UpdatedDict["Hero"]=KingSaul
-        else:
-            UpdatedDict["Hero"] = ""
-
+            UpdatedDict["Hero"].append(KingSaul)
     return ToSend
 
 def DeleteTask(TaskName,ProductName):
-    TaskID = GetTaskID(TaskName,ProductName)
     mydb = Connect()
     LazyGuy = mydb.cursor()
     DELcommand = """DELETE FROM Tasks 
-                    WHERE Task_ID = %s"""
-    LazyGuy.execute(DELcommand,[TaskID])
+                    WHERE Task_Content = %s"""
+    LazyGuy.execute(DELcommand,[TaskName])
     mydb.commit()
     return True
 
 def GetTaskID(TaskName,ProductName):
-    TaskContent = LanguageLoader.GetKeys([TaskName],"Czech")[0]
     ProductID = GetProductID(ProductName)
     mydb = Connect()
     mycursor = mydb.cursor()
@@ -414,11 +468,14 @@ def GetTaskID(TaskName,ProductName):
     TaskID = mycursor.fetchall()
     return TaskID[0][0]
 
-def CreateTask(ProductName,TaskName,HeroName):
+def CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, Alter):
     ProductID = GetProductID(ProductName)
-    DatabaseName = TaskName +str(ProductID)
-    LanguageLoader.AddToDictionary("Czech",DatabaseName,TaskName)
-    TaskName = DatabaseName
+    if Alter:
+        DatabaseName = TaskName + "Skaut" + str(ProductID)+str(time.time())
+        DatabaseName = DatabaseName.replace(".","GJK")
+        LanguageLoader.AddToDictionary("Czech",DatabaseName,TaskName)
+        TaskName = DatabaseName
+    
     #Investigate, if HeroName referes to Active or Pasive user
     mydb = Connect()
     mycursor = mydb.cursor()
@@ -429,7 +486,7 @@ def CreateTask(ProductName,TaskName,HeroName):
     PassiveList = mycursor.fetchall()
     SmoothList = ""
     for ListPart in PassiveList:
-        SmoothList = SmoothList +", " + str(ListPart[0])
+        SmoothList = SmoothList +",  " + str(ListPart[0])
         SmoothList = SmoothList[1:]
     Holmes = mydb.cursor()
     Command = """SELECT PasiveUser_ID
@@ -453,13 +510,118 @@ def CreateTask(ProductName,TaskName,HeroName):
         ID =""
         Nature=""
     Leonardo = mydb.cursor()
-    ArtVision = """INSERT INTO Tasks(Project_ID,Task_Content,Hero_ID, Hero_Nature)
-                   VALUES(%s,%s,%s,%s)"""
-    Values=[ProductID, TaskName,ID,Nature]
+
+    if Alter:
+        ArtVision = """INSERT INTO Tasks(Project_ID,Task_Content, Task_Deadline, Task_WorkTime)
+                       VALUES(%s,%s,%s,%s)"""
+        Values=[ProductID, TaskName,Deadline,WorkTime]
+        Leonardo.execute(ArtVision,Values)
+        mydb.commit()
+
+    Leonardo = mydb.cursor()
+    ArtVision = """INSERT INTO Tasks(Project_ID,Task_Content,Hero_ID, Hero_Nature, Task_Deadline, Task_WorkTime)
+                   VALUES(%s,%s,%s,%s,%s,%s)"""
+    Values=[ProductID, TaskName,ID,Nature,Deadline,WorkTime]
     Leonardo.execute(ArtVision,Values)
     mydb.commit()
 
+def VisitorRole(ProductName,request):
+    try:
+        UserID = Authentication.GetID(request)
+    except KeyError:
+        UserID = 3
 
+    ProductID = GetProductID(ProductName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    Command=("""SELECT RelationType
+            FROM REL_Projects_ActiveUsers
+            WHERE ProjectID= %s AND ActiveUserID =%s""")
+    VariTuple=[ProductID,UserID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    Roles = []
+    if Result != []:
+        Roles = []
+        for Role in Result:
+            Roles.append(str(Role[0]))
+        UserRole = Roles
+    else:
+        UserRole = "DubiousStranger"
+    return UserRole
 
+def CheckBoss(request, ProductName):
+    VisitorRoles = VisitorRole(ProductName,request)
+    if "{'Boss'}" in VisitorRoles:
+        return True
+    else:
+        return False
 
-        
+def DeleteProduct(ProductName):
+    ProdID = GetProductID(ProductName)
+    mydb = Connect()
+    BurnoutGuy = mydb.cursor()
+    DELcommand = """DELETE FROM Projects 
+                    WHERE Project_ID = %s"""
+    BurnoutGuy.execute(DELcommand,[ProdID])
+    mydb.commit()
+    return True
+
+def AddTaskHero(ProductName,TaskName,NewTaskHero):
+    #Get task times
+    mydb = Connect()
+    ShowLeader = mydb.cursor()
+    Command = """SELECT Task_Deadline,Task_WorkTime
+                 FROM Tasks
+                 WHERE Task_Content = %s"""
+    ShowLeader.execute(Command,[TaskName])
+    Result = ShowLeader.fetchall()[0]
+    Deadline = Result[0]
+    WorkTime = Result[1]
+    # Insert new team collaborator
+    CreateTask(ProductName,TaskName,NewTaskHero,Deadline,WorkTime,False)
+
+def DeleteTaskHero(TaskName,HeroIndex):
+    mydb=Connect()
+    HeroTrairor = mydb.cursor()
+    RotIdea = """SELECT Task_ID 
+                 FROM Tasks
+                 WHERE Task_Content = %s
+                 ORDER BY Task_Deadline"""
+    HeroTrairor.execute(RotIdea,[TaskName])
+    TaskID = HeroTrairor.fetchall()[HeroIndex][0]
+    HeroSlayer = mydb.cursor()
+    HuntMotto = """DELETE FROM Tasks
+                  WHERE Task_ID = %s"""
+    HeroSlayer.execute(HuntMotto,[TaskID])
+    mydb.commit()
+
+def UpdateTaskTime(Deadline,WorkTime,TaskName):
+    mydb=Connect()
+    Reformator = mydb.cursor()
+    Statement = """UPDATE Tasks
+                   SET Task_WorkTime = %s, Task_Deadline = %s
+                   WHERE  Task_Content = %s"""
+    Inspiration = [WorkTime,Deadline,TaskName]
+    Reformator.execute(Statement,Inspiration)
+    mydb.commit()
+
+def LookForUser(Wanted):
+    mydb = Connect()
+    HeadHunter = mydb.cursor()
+    Instructions = """SELECT ActiveUser_ID, CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames), ActiveUser_Birthday,ActiveUser_Sex, ActiveUser_Info
+                     FROM ActiveUsers
+                     WHERE CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) LIKE %s"""
+    AgentCloak = ["%" + Wanted + "%"]
+    HeadHunter.execute(Instructions, AgentCloak)
+    Boss = HeadHunter.fetchall()
+    return Boss
+
+def InsertChapter(DatabaseJSON, request):
+    UserID = Authentication.GetID(request)
+    BilboHouse = Connect()
+    Bilbo = BilboHouse.cursor()
+    MemoryStrategy = """INSERT INTO Chapters(Chapter_Content,UserID)
+                         VALUES(%s, %s)"""
+    Bilbo.execute(MemoryStrategy,[DatabaseJSON, UserID])
+    BilboHouse.commit()

@@ -1,6 +1,8 @@
 {% load static %}
 <div>
     <form action="Home"><button onclick="Logout()"><p>{{Logout}}</p></button></form>
+    <form action="Search"><input type="text" name="LookForThis" placeholder="{{SearchHTML}}"></form>
+    <form action="Diary"><button>{{DiaryHTML}}</button></form>
 </div>
 <script type="text/javascript" src="PageManagement.js"></script>
 <script>

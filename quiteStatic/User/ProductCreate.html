@@ -1,11 +1,16 @@
 {% extends "activeframe.html" %}
 {% block content %}
 {% load static %}
-    <body>
-
-        <h1>{{ProductName}}</h1>
+    <body onload="OpenWhatItTakes()">
+        <div>
+            <h1>{{PublicProductName}}</h1>
+            {% if "{'Boss'}" in VisitorRoles %}
+            <form action="DeleteProduct"> <button type="submit" name="ProductName" value="{{ProductName}}">{{Delete}} {{PublicProductName}}</button></form>
+            {% endif %}
+        </div>
         <div>
             <h3>{{TeamHTML}}</h3>
+            {% if "{'Boss'}" in VisitorRoles %}
             {% for TeamMember in TeamMembers %}
             <form action="DeleteHero"> <p>{{TeamMember}}<button type="submit" name="ToDelete" value="{'Role':'TeamMember','ProductName':'{{ProductName}}', 'ExheroName':'{{TeamMember}}'}">{{Delete}}</button></p></form>
             {% endfor %}
@@ -16,10 +21,19 @@
                 </div>
                 <button value="{'Role':'TeamMember','ProductName':'{{ProductName}}'}" name="ProductHero">{{Add}}</button>
             </form>
+            {% elif "{'Client'}" or "{'TeamMember'}" in VisitorRoles %}
+            {% for TeamMember in TeamMembers %}
+            <p>{{TeamMember}}</p>
+            {% endfor%}
+            {% if "{'TeamMember'}" in VisitorRoles %}
+            <form action="SelfDeleteHero"> <button type="submit" name="ToDelete" value="{'Role':'TeamMember','ProductName':'{{ProductName}}'}">{{SelfDeleteHTML}}</button></form>
+            {% endif %}
+            {% endif %}
         </div>
 
         <div>
             <h3>{{ClientsHTML}}</h3>
+            {% if "{'Boss'}" in VisitorRoles %}
             {% for Client in Clients %}
             <form action="DeleteHero"> <p>{{Client}}<button type="submit" name="ToDelete" value="{'Role':'Client','ProductName':'{{ProductName}}', 'ExheroName':'{{Client}}'}">{{Delete}}</button></p></form>
             {% endfor %}
@@ -30,24 +44,128 @@
                 </div>
                 <button value="{'Role':'Client','ProductName':'{{ProductName}}'}" name="ProductHero">{{Add}}</button>
             </form>
+            {% elif "{'Client'}" or "{'TeamMember'}" in VisitorRoles %}
+            {% for Client in Clients %}
+            <p>{{Client}}</p>
+            {% endfor %}
+            {% if "{'Client'}" in VisitorRoles %}
+            <form action="SelfDeleteHero"> <button type="submit" name="ToDelete" value="{'Role':'Client','ProductName':'{{ProductName}}'}">{{SelfDeleteHTML}}</button></form>
+            {% endif %}
+            {% endif %}
         </div>
 
         <div>
             <h3>{{TasksHTML}}</h3>
+            {% if "{'Boss'}" in VisitorRoles %}
             {% for Task in Tasks %}
-            <form action="DeleteTask"><p>{{Task.Task}}  {{TeamHTML}}:{{TeamHTML.Hero}}<input name="New" type="text"></p><button name="ToDelete" value="{'TaskName':'{{Task.Task}}','ProductName':'{{ProductName}}'}">{{Delete}}</button></form>
+                <div>
+                    <p><h4>{{Task.Task}}</h4></p>
+                    <div id="{{Task.RealTask}}">
+                        <button onclick="{{Task.RealTask}}()">{{MoreHTML}}</button>
+                    </div>
+                    <div hidden>
+                        <div id="{{Task.RealTask}}More">
+                            <div>
+                                <p>
+                                    <b>{{TeamHTML}}</b>:
+                                    {% for Hero in Task.Hero %}
+                                    <form action="DeleteTaskHero">
+                                        {{Hero}}
+                                        <button name="ToDelete" value="{'TaskName':'{{Task.RealTask}}','HeroIndex':'{{ forloop.counter }}', 'ProductName':'{{ProductName}}'}">{{Delete}}</button>
+                                    </form>
+                                </p>
+                                {% endfor %}
+                            </div>
+                            <form action="NewTaskHero">
+                                <input name="NewTaskHero" type="text" placeholder="{{NickNnameHTML}}">
+                                <button name="ExtraValues" value="{'TaskName':'{{Task.RealTask}}','ProductName':'{{ProductName}}'}">
+                                </button>
+                            </form>
+                            <form action="ResetTaskTime">
+                                <input type="datetime-local" name="Deadline" placeholder="{{DeadlineHTML}}">
+                                <input type="time" name="WorkTime" placeholder="{{WorkTimeHTML}}">
+                                <button name="TaskIdentificators" value="{'TaskName':'{{Task.RealTask}}','ProductName':'{{ProductName}}'}">{{Save}}</button>
+                            </form>
+                            <form action="DeleteTask">
+                                <button name="ToDelete" value="{'TaskName':'{{Task.RealTask}}','ProductName':'{{ProductName}}'}">{{Delete}}</button>
+                            </form>
+                            <div>
+                                <button onclick="{{Task.RealTask}}Less()">{{LessHTML}}</button>
+                            </div>
+                        </div>
+            </div>
+                    <div hidden id="{{Task.RealTask}}Less">
+                       <button onclick="{{Task.RealTask}}()">{{MoreHTML}}</button>
+                    </div>
+            </div>
+            </div>
             {% endfor %}
-
-            <form action="NewTask">
-                <input type="text" name="TaskName" placeholder="{{TasksHTML}}">
-                <input type="text" name="HeroName" placeholder="{{NickNnameHTML}}">
-                <button value="{{ProductName}}" name="ProductName">{{Add}}</button>
-            </form>
+            <div>
+                <form action="NewTask">
+                    <input type="text" name="TaskName" placeholder="{{TasksHTML}}">
+                    <input type="text" name="HeroName" placeholder="{{NickNnameHTML}}">
+                    <input type="datetime-local" name="Deadline" placeholder="{{DeadlineHTML}}">
+                    <input type="time" name="WorkTime" placeholder="{{WorkTimeHTML}}">
+                    <button value="{{ProductName}}" name="ProductName">{{Add}}</button>
+                </form>
+            </div>
+            {% elif "{'Client'}" or "{'TeamMember'}" in VisitorRoles %}
+            {% for Task in Tasks %}
+            <div>
+                <p><h4>{{Task.Task}}</h4></p>
+                <p><b>{{TeamHTML}}</b>:{% for Hero in Task.Hero %}{{Hero}}{% endfor %}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
         </div>
 
-            <div>
-                <form action="Home"><button>{{Home}}</button></form>
-            </div>
+        <div>
+            <form action="Home"><button>{{Home}}</button></form>
+        </div>
         
+        <script>
+            function OpenWhatItTakes() {
+                    var Registred = sessionStorage.getItem("RegistredTasks")
+                    console.log("Done!")
+                if (Registred==null) { var Registred = [] }
+                {% for Task in Tasks %}
+                var Included = Registred.includes("{{Task.RealTask}}")
+                if (!Included) {
+                    Registred.push("{{Task.RealTask}}")
+                    {{ Task.RealTask }}Less()
+                } else {
+                    State = sessionStorage.getItem("{{Task.RealTask}}")
+                    if (State == "Closed") {
+                        {{ Task.RealTask }}Less()
+                    } else {
+                         {{ Task.RealTask }}()
+                    }
+                }
+                {% endfor %}
+                sessionStorage.setItem("RegistredTasks", Registred)
+
+            }
+
+        {% for Task in Tasks %}
+                         
+         
+            function {{ Task.RealTask }}(){
+                var ToInner = document.getElementById("{{ Task.RealTask }}More").innerHTML;
+                sessionStorage.setItem("{{Task.RealTask}}", "Open");
+            return document.getElementById("{{ Task.RealTask }}").innerHTML = ToInner
+               
+
+            }
+
+            function {{ Task.RealTask }}Less(){
+             var ToInner = document.getElementById("{{ Task.RealTask }}Less").innerHTML;
+             sessionStorage.setItem("{{Task.RealTask}}", "Closed");
+            return document.getElementById("{{ Task.RealTask }}").innerHTML = ToInner
+            }
+        {% endfor %}
+        </script>
+
+
     </body>
+
  {% endblock %}
