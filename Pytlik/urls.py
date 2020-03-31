@@ -46,7 +46,9 @@ urlpatterns = [
     path('ResetTaskTime',UserViews.ResetTaskTime, name ="ResetTaskTime"),
     path('Search',UserViews.Search, name="Search"),
     path('Diary',UserViews.Diary, name="Diary"),
-    path('SubmitDiary',UserViews.SubmitDiary, name="SubmitDiary")
-
+    path('SubmitDiary',UserViews.SubmitDiary, name="SubmitDiary"),
+    path('HeroSelfInclude',UserViews.HeroSelfInclude, name="HeroSelfInclude"),
+    path('Calendar',UserViews.Calendar, name="Calendar"),
+    path('CallDay',UserViews.CallDay, name="CallDay")
 ]
 urlpatterns += staticfiles_urlpatterns()

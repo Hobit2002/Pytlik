@@ -1,55 +1,256 @@
 {% extends "activeframe.html" %}
 {% block content %}
 {% load static %}
-<body>
-    <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
-        <div><h1>{{DiaryHTML}}</h1></div>
-       <div>
-           <form action="SubmitDiary">
-               <p>
-                   {% for Emotion in DiaryData.Emotions %}
-                   <label for='{{Emotion}}'>{{Emotion}}:</label><input type='number' min='0' max='10' name='{{Emotion}}'>
-                   {% endfor %}
-               </p>
-               <select name="TypeOfActivity" id="Overall">
-                   {% for Opinion in DiaryData.Activities.keys %}
-                   <option value='{"Javascript":"{{Opinion|cut:" "|cut:"/"|cut:","}}","Python":"{{Opinion}}"}'>{{Opinion}}</option>
-                   {% endfor %}
-               </select>
-               <button onclick="More()" type="button">{{MoreHTML}}</button>
-               <div id="MoreQuestions">
-               </div>
-           </form>
+{% load CustFC %}
+    <body>
+        <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
+        <div>{% if Role == "Memory" %}<h1>{{Date}}</h1>{% else %}<h1>{{DiaryHTML}}</h1>{% endif %}</div>
+
+        <label for='TypeOfTemplate'>{{BuildHTML}} {{OnHTML}} {{aqTemplateHTML}}:</label><select name="TypeOfTemplate">
+            <option value=""></option>
+            {% for TemplateID,TemplateName in Templates.items %}
+            <option value="{{TemplateID|cut:" "|cut:"/"|cut:"," }}">{{TemplateName.0.0}}</option>
+            {% endfor %}
+        </select>
+
+        <div>
+            <form action="SubmitDiary" name="SubmitDiary">
+                <input hidden name="AddChaptersCount" value="0">
+                <input hidden name="NewTemplate" value="0">
+                <input hidden name="CurrentURL">
+                <input hidden name="Savingformat" value="{{Date}}">
+                <div id="ChapterDiv">
+                    <p>
+                        <label for='StartTime'>{{BeginingHTML}}:</label><input type='datetime-local' name='StartTime' class="WasteRisk">
+                        <label for='EndTime'>{{EndHTML}}:</label><input type='datetime-local' name='EndTime' class="WasteRisk" onchange="LeadTheTimeFlow('')">
+                    </p>
+                    <p>
+                        {% for Emotion in DiaryData.Emotions %}
+                        <label for='{{Emotion}}'>{{Emotion}}:</label><input type='number' min='0' max='10' name='{{Emotion}}' class="WasteRisk">
+                        {% endfor %}
+                    </p>
+                    <select name="TypeOfActivity" onchange="AddInfo('')">
+                        {% for Opinion in DiaryData.Activities.keys %}
+                        <option value='{"Javascript":"{{Opinion|cut:" "|cut:"/"|cut:","}}","Python":"{{Opinion}}"}'>{{Opinion}}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="MoreQuestions">
+                    </div>
+                    <button onclick="Delete('')" type="button">{{Delete}}</button>
+                </div>
+                <div id="AddChapters">
+                </div>
+                <button onclick="More()" type="button">{{MoreHTML}}</button>
+                <button type='submit' id="Submit">{{SubmitHTML}}</button>
+                <input type="text" placeholder="{{Nickname}} {{aqTemplateHTML|replace:"xy"}}" name="NewTemplateName">
+                <button type="submit" id="AlternativeSubmit">{{Save}} {{AsHTML}} {{aqTemplateHTML|replace:"xu"}}</button>
+            </form>
         </div>
- <script>
+        <script src="{% static 'jQuery.js' %}"></script>
+        <script>
+            document.getElementsByName("CurrentURL")[0].value = window.location.href
+            var Blankfield = document.getElementById("ChapterDiv").innerHTML
+
+   document.getElementsByName("SubmitDiary")[0].addEventListener("submit", function (event) {
+             var RiskyAnswers = document.getElementsByClassName("WasteRisk")
+             for (i = 0; i < RiskyAnswers.length; i++) {
+                 var ControledValue = RiskyAnswers[i].value
+                 if (ControledValue == '') {
+                     alert('Fill in all data')
+                     event.preventDefault()
+                     return
+                 }
+       }
+
+         }, true);
+
+  document.getElementById("AlternativeSubmit").addEventListener("click", function (event) {
+                var TemplateName = document.getElementsByName("NewTemplateName")[0].value;
+                if (TemplateName == '') {
+                    alert("How can I remember this new template?")
+                    event.preventDefault()
+                    return
+                } else {
+                    document.getElementsByName("NewTemplate")[0].value = 1
+                }
+  }, true);
+
+   document.getElementsByName("TypeOfTemplate")[0].addEventListener("change", function (event) {
+                var TempName = document.getElementsByName("TypeOfTemplate")[0].value;
+       if (TempName != "") {
+           TemplateFiller(TempName)
+       } else {
+       document.getElementById("ChapterDiv").innerHTML = Blankfield
+       document.getElementById("AddChapters").innerHTML = ""
+       AddInfo('')};
+   }, true)
+
+         function TemplateFiller(TempName) {
+                document.getElementById("ChapterDiv").innerHTML = ""
+                document.getElementById("AddChapters").innerHTML = ""
+                var JSONstring = TemplateIdentificator[TempName];
+                JSONstring = JSONstring.replace(/b&#x27;/g, '')
+                JSONstring = JSONstring.replace(/&#x27;/g, '')
+             JSONstring = JSONstring.replace(/&quot;/g, '\"')
+                var TempChapters = JSON.parse(JSONstring);
+                var IniLoppVal = parseInt(document.getElementsByName("AddChaptersCount")[0].value)
+             for (i = 1, d = IniLoppVal + 1; d < TempChapters.length + IniLoppVal + 1; i++ , d++) {
+                 ID = More();
+                 var id = "TypeOfActivity" + String(d);
+                 var ListID = i - 1;
+                 var BasicForm = TempChapters[ListID]["TypeOfActivity"];
+                 var JavaForm = BasicForm.replace(/ |,|\//g, '');
+                 var Value = '{"Javascript":"' + JavaForm + '","Python":"' + BasicForm + '"}';
+                 document.getElementsByName(id)[0].value = Value
+                 AddInfo(ID);
+                 DetailOpi = Concretization[JavaForm];
+                 for (n = 0; n < DetailOpi.length; n++) {
+                     document.getElementsByName(DetailOpi[n] + ID)[0].value = TempChapters[ListID]["Concretly" + String(n)]
+                 }
+                 var TempStartTime = TempChapters[ListID]["ActivityStart"];
+                 var TempEndTime = TempChapters[ListID]["ActivityEnd"];
+                 {% if Role == "Memory" %}
+                 var InsertStartTime = "{{Date}}" + TempStartTime.substring(10, TempStartTime.length)
+                var InsertEndTime = "{{ Date }}" + TempEndTime.substring(10, TempEndTime.length)
+                console.log(InsertEndTime)
+                    {% else %}
+                    var Now = new Date()
+                    var DayString = String(Now.getDate())
+                    var MonthString = String(Now.getMonth() + 1)
+                    if (DayString.length == 1) {
+                        DayString = "0" + DayString
+                    }
+                    if (MonthString.length == 1) {
+                        MonthString = "0" + MonthString
+                    }
+                    var InsertStartTime = String(Now.getFullYear()) + "-" + MonthString + "-" + DayString + TempStartTime.substring(10, TempStartTime.length)
+                    var InsertEndTime = String(Now.getFullYear()) + "-" + MonthString + "-" + DayString + TempEndTime.substring(10, TempEndTime.length)
+                    {% endif %}
+                    document.getElementsByName("StartTime" + ID)[0].value = InsertStartTime
+                 document.getElementsByName("EndTime" + ID)[0].value = InsertEndTime
+                 if (TempName == "DayHistory") {
+                     ObjectOfInterest = TempChapters[ListID]
+                     Keys = Object.keys(ObjectOfInterest)
+                     for (m = 0, Key = Keys[m]; m < Keys.length; m++,Key = Keys[m]) {
+                         try {
+                             if (Key != "TypeOfActivity") {
+                             document.getElementsByName(String(Key) + ID)[0].value = TempChapters[ListID][String(Key)]}
+                         } catch (err) {}
+                     }
+                 }
+                }
+            }
+
+          function More() {
+              var ChapID = parseInt(document.getElementsByName("AddChaptersCount")[0].value) + 1
+              document.getElementsByName("AddChaptersCount")[0].value = ChapID
+         var NewCont = "<div id='ChapterDiv" + String(ChapID)+"'>"+"<p>"+
+                   "<label for='StartTime" + String(ChapID)+"'>{{BeginingHTML}}:</label><input type='datetime-local' name='StartTime" + String(ChapID)+"' class='WasteRisk'>"+
+                   "<label for='EndTime" + String(ChapID)+"'>{{EndHTML}}:</label><input type='datetime-local' name='EndTime" + String(ChapID)+"' class='WasteRisk' onchange='LeadTheTimeFlow(" +String(ChapID)+ ")'>"+
+               "</p>"+
+               "<p>"+
+                   "{% for Emotion in DiaryData.Emotions %}"+
+                   "<label for='{{Emotion}}" + String(ChapID)+"'>{{Emotion}}:</label><input type='number' min='0' max='10' name='{{Emotion}}" + String(ChapID)+"' class='WasteRisk'>"+
+                   "{% endfor %}"+
+               "</p>"+
+               "<select name='TypeOfActivity" + String(ChapID)+ "' onchange='AddInfo("+String(ChapID)+")' )>"+
+                   "{% for Opinion in DiaryData.Activities.keys %}"+
+                   "<option value='{\"Javascript\":\"{{Opinion|cut:' '|cut:'/'|cut:','}}\",\"Python\":\"{{Opinion}}\"}'>{{Opinion}}</option>"+
+                   "{% endfor %}"+
+                       "</select>" +
+               "<div id='MoreQuestions" + String(ChapID)+"'>"+
+                  "</div><button onclick=\"Delete(" + String(ChapID)+")\" type=\"button\">{{Delete}}</button></div>";
+              $(document.getElementById("AddChapters")).append(NewCont);
+              AddInfo(String(ChapID))
+              TimeBackFlow(String(ChapID))
+              return String(ChapID)
+     }
+
      var Expansions = {
       {% for Overall, Details in DiaryData.Activities.items %}
       {{ Overall|cut:" "|cut:"/"|cut:"," }} : ""{% for Detail in Details %}{% if Detail.1|length > 1 %}
-         +"<select name='{{Detail.1}}'>"+
+         +"<select name='{{Detail.1}}PeQuoRin'>"+
          {% for SoSmall in Detail %}
          "<option value='{{SoSmall}}'>{{SoSmall}}</option>"+
          {% endfor %}
           "</select>"
          {% elif Detail.1|length == 1 %}
-         +"<label for='{{Detail}}'>{{Detail}}:</label><input type='number' min='0' max='10' name='{{Detail}}'>"
+         +"<label for='{{Detail}}PeQuoRin'>{{Detail}}:</label><input type='number' min='0' max='10' name='{{Detail}}PeQuoRin' class='WasteRisk'>"
      {% endif %}
          {% endfor %}
-     
      ,
      {% endfor %}
-     }
-     function More() {
-         var TriggerCoordinates = document.getElementById("Overall").value
-         TriggerCoordinates = JSON.parse(TriggerCoordinates)
-         console.log(TriggerCoordinates)
-         TriggerCoordinates = TriggerCoordinates["Javascript"] 
-         var HTMLToAdd = Expansions[String(TriggerCoordinates)]
-         var SubmitButton = "<button type='submit'>{{SubmitHTML}}</button>"
-         HTMLToAdd = HTMLToAdd + SubmitButton
-         document.getElementById("MoreQuestions").innerHTML = HTMLToAdd
+            lo: "go"};
+
+           
+            var TemplateIdentificator = {
+        {% for TemplateID, TemplateName in Templates.items %}
+            {{TemplateID|cut:" "|cut:"/"|cut:","}}: "{{TemplateName.1}}",
+                {% endfor %}
+            {% if Role == "Memory" %}
+            DayHistory: "{{DayHistory}}",
+             {% endif %}
+            }
+
+
+            var Concretization = {
+            {% for Opinion,Details in DiaryData.Activities.items %}
+            {{ Opinion|cut:" "|cut:"/"|cut:"," }}: [
+                {% for Detail in Details %}{% if Detail.1|length > 1 %}
+            '{{Detail.1}}',
+            {% endif %}{% endfor %} ],
+            {% endfor %}
+            } 
+
+            function LeadTheTimeFlow(StartPoint) {
+                if (StartPoint == '') { var StartNum = 0 }
+                else { var StartNum = parseInt(StartPoint) }
+                var EndTime = document.getElementsByName("EndTime" + StartPoint)[0].value;
+                var TopLine = document.getElementsByName("AddChaptersCount")[0].value
+                for (pId = StartNum + 1; pId < TopLine + 1; pId++ ){
+                    try {
+                        document.getElementsByName("StartTime" + String(pId))[0].value = EndTime;
+                        return} catch (error) {}
+                }
+            }
+
+            function TimeBackFlow(StartPoint) {
+                if (StartPoint == '') { var StartNum = 0 }
+                else { var StartNum = parseInt(StartPoint) }
+                for (pId = StartNum - 1; pId > 0; pId-- ){
+                    try {
+                        //console.log(pId)
+                        var EndTime = document.getElementsByName("EndTime" + String(pId))[0].value;
+                        document.getElementsByName("StartTime" + StartNum)[0].value = EndTime;
+                        return} catch (error) {}
+                }
+            }
+
+     function AddInfo(SectionIdentificator) {
+         var Activity = "TypeOfActivity" + SectionIdentificator;
+         var TriggerCoordinates = document.getElementsByName(Activity)[0].value;
+         TriggerCoordinates = JSON.parse(TriggerCoordinates);
+         TriggerCoordinates = TriggerCoordinates["Javascript"];
+         var HTMLToAdd = Expansions[String(TriggerCoordinates)];
+         HTMLToAdd = HTMLToAdd.replace(/PeQuoRin/g, SectionIdentificator)
+         document.getElementById("MoreQuestions" + SectionIdentificator).innerHTML = HTMLToAdd;
+         document.getElementsByName("MoreQuestions" + SectionIdentificator).innerHTML = HTMLToAdd;
      }
 
-     
- </script>
-</body>
+    AddInfo('')
+     function Delete(SectionIdentificator) {
+         var ElemID = 'ChapterDiv' + SectionIdentificator
+         console.log(ElemID)
+         var elem = document.getElementById(ElemID)
+         elem.parentNode.removeChild(elem)
+            }
+
+    function decode_utf8(s) {
+  return decodeURIComponent(escape(s));
+            }
+            {% if Role == "Memory" %}
+            TemplateFiller("DayHistory")
+            {% endif %}
+        </script>
+    </body>
  {% endblock %}

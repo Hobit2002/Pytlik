@@ -47,3 +47,19 @@ def AddToDictionary(Language,Key,Value):
     DataFile = open('languages\dictionary2.json', 'w')
     DataFile.write(ToSave)
     DataFile.close()
+
+def AddToDatactionary(Language,Key,Value):
+    InnerText= open('Dataseer\TaskNames.json','r')
+    Dictionary =json.load(InnerText)
+    Dictionary[Key] = {Language:Value}
+    ToSave = json.dumps(Dictionary)
+    DataFile = open('Dataseer\TaskNames.json','w')
+    DataFile.write(ToSave)
+    InnerText.close()
+    DataFile.close()
+
+def LoadTaskName(RealTask,Language):
+    InnerText= open('Dataseer\TaskNames.json','r')
+    Dictionary =json.load(InnerText)
+    PublicName = Dictionary[RealTask][Language]
+    return PublicName

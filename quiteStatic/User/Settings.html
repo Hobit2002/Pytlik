@@ -8,7 +8,7 @@
             {% csrf_token %}
             <input type="text" id="FirstName" name="FirstName">
             <input type="text" id="SecondName" name="SecondName">
-            <input type="text" id="Email" name="Email">
+            <input type="email" id="Email" name="Email">
             <input type="date" id="Birthday" name="Birthday">
             <input type="text" id="Year" name="Year">
             <select name="Sex" id="Sex">
@@ -30,16 +30,20 @@
         sessionStorage.setItem("OtherNames", "{{ OtherNames }}");
         sessionStorage.setItem("Image", "{{ Image }}");
         sessionStorage.setItem("Info", "{{ Info }}");
-        sessionStorage.setItem("Sex", "{{ Sex }}");
+        sessionStorage.setItem("SexOfi", "{{ Sex }}");
         sessionStorage.setItem("Birthday", "{{ Birthday }}");
         sessionStorage.setItem("Year", "{{ Year }}");
-    }
+        sessionStorage.setItem("JSsex", "{{ JSsex }}");
+            };
+    console.log(sessionStorage.getItem('Birthday'))
+
     document.getElementById("FirstName").value = sessionStorage.getItem('FirstName');
+     var Day = new Date(sessionStorage.getItem('Birthday'))
     document.getElementById("SecondName").value = sessionStorage.getItem('OtherNames');
     document.getElementById("Email").value = sessionStorage.getItem('Email');
     document.getElementById("Year").value = sessionStorage.getItem('Year');
     document.getElementById("Info").value = sessionStorage.getItem('Info');
-    document.getElementById("Sex").value = sessionStorage.getItem('Sex');
+    document.getElementById("Sex").value = sessionStorage.getItem('JSsex');
     document.getElementById("Birthday").value = sessionStorage.getItem('Birthday');
 
 

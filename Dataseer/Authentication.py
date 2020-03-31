@@ -32,7 +32,7 @@ def CheckUser(request, Page, LanguagePack):
             NewToken = int(str(Report[0][0]) + str(round(time.time())))
             NewLanguagePack, Context = BuildPack(Report[0][0], request, LanguagePack)
             Wish = render(request, Page, NewLanguagePack)
-            Wish.set_cookie("BasicInfo", str(NewToken),max_age = 7200)
+            Wish.set_cookie("BasicInfo", str(NewToken),max_age = 60*60*24*60)
             Wish.set_cookie("MetaInfo", Context)
 
             mycursor2 = mydb.cursor()
@@ -79,7 +79,10 @@ def BuildPack (ID, request, LanguagePack):
             Key = UserParameters[ParaIndex]
             Value = MetaInfo[ParaIndex]
             if Key=="Sex" and Value != None:
+                LanguagePack["JSsex"] = (str(Value)[2:])[:(len(str(Value)[2:])-2)]
                 Value = LanguageLoader.LoadWord(str(Value),"Czech")
+            if Key=="Birthday" and Value != None:
+                Value = str(Value)
             LanguagePack[Key] = Value
 
         Context = 0

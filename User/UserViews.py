@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
 from django.template import RequestContext
-import json, re,time,sys,os, time,os
+import json, re,time,sys,os, time,os, datetime
 from pathlib import Path
-from django.urls import path
+from django.urls import path, reverse
+from django.utils.datastructures import MultiValueDictKeyError
+from urllib.parse import urlencode
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
 import Authentication, Database, LanguageLoader, Consolewriter
+from django.http import HttpResponseRedirect
 # Create your views here.
 
 def Home(request):
@@ -142,11 +145,10 @@ def DeleteTask(request):
     return redirect(URL)
 
 def CallProduct(ProductName):
-    #CHANGE AS YOU DEPLOY IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    URL = "http://127.0.0.1:8000/Product?OldProductName=" + ProductName
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    return URL
+    base_url = reverse('Product')
+    query_string =  urlencode({'OldProductName': ProductName})
+    url = '{}?{}'.format(base_url, query_string)
+    return url
 
 def NewTask(request):
     Authentication.QuickCheck(request)
@@ -155,7 +157,7 @@ def NewTask(request):
     HeroName = request.GET["HeroName"]
     Deadline = request.GET["Deadline"]
     WorkTime = request.GET["WorkTime"]
-    Database.CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, True)
+    Database.CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, True, request)
     URL = CallProduct(ProductName)
     return redirect(URL)
 
@@ -175,7 +177,7 @@ def NewTaskHero(request):
     ProductName = ComingHeroCoordinates["ProductName"]
     NewTaskHero = request.GET["NewTaskHero"]
     if Database.CheckBoss(request,ProductName):
-        Database.AddTaskHero(ProductName,TaskName,NewTaskHero)
+        Database.AddTaskHero(ProductName,TaskName,NewTaskHero,request)
         URL = CallProduct(ProductName)
         return redirect(URL)
     else:
@@ -217,7 +219,7 @@ def Search(request):
     if Employee != []:
         ID, Name, Birthday,Sex, Info = Employee[0]
         LanguagePack = LanguageLoader.Language("HomePage","Czech")
-        SearchedUserPack = {"Name_Search":Name, "Birthday_Search":Birthday,"Sex_Search":Sex, "Info_Search":Info}
+        SearchedUserPack = {"Name_Search":Name, "Birthday_Search":Birthday,"Sex_Search":LanguageLoader.LoadWord(str(Sex), "Czech"), "Info_Search":Info}
         LanguagePack["SearchUsr"] = SearchedUserPack
         Products = Database.GetProducts(request, ID)
         LanguagePack["MyProducts"] = Products
@@ -226,35 +228,130 @@ def Search(request):
 
 def Diary(request):
     LanguagePack = LanguageLoader.Language("Diary","Czech")
-    DiaryData = open('Dataseer\Chapters2.json','r')
+    DiaryData = open('Dataseer\Chapters.json','r')
     ReDiDa = json.load(DiaryData)
+    DiaryData.close()
     LanguagePack["DiaryData"] = ReDiDa
+    LanguagePack["Templates"] = Database.GetiDiaryTemplates(request)
     #GoToPage
     Decision  = Authentication.CheckUser(request,"User\Diary.html",LanguagePack)  
     return Decision
 
 def SubmitDiary(request):
-    DiaryData = open('Dataseer\Chapters2.json','r')
+    DiaryData = open('Dataseer\Chapters.json','r')
     ReDiDa = json.load(DiaryData)
-    Overall = request.GET["TypeOfActivity"]
-    Overall = json.loads(Overall)
-    Overall = Overall["Python"]
-    PropertiesNames = ReDiDa["Activities"][Overall]
-    DatabaseJSON = {}
-    DatabaseJSON["TypeOfActivity"] = Overall
-    for LoopIdx,Property in enumerate(PropertiesNames):
-        if type(Property) == list:
-            ListProperty = request.GET[Property[1]]
-            JSONkey = "Concretly" + str(LoopIdx)
-            DatabaseJSON[JSONkey] = ListProperty
-        elif type(Property) == str:
-            Quality = request.GET[Property]
-            DatabaseJSON[Property] = Quality
-    Emotions = ReDiDa["Emotions"]
-    for Emotion in Emotions:
-        DatabaseJSON[Emotion] = request.GET[Emotion]
+    NewTemCom = request.GET["NewTemplate"]
+    TemplateChapters = []
+    SubmitFormat = request.GET["Savingformat"]
+    if SubmitFormat != '':
+        Database.DeleteDayChapters(request,SubmitFormat)
+    try:
+        Overall = request.GET["TypeOfActivity"]
+        Overall = json.loads(Overall)
+        Overall = Overall["Python"]
+        PropertiesNames = ReDiDa["Activities"][Overall]
+        DatabaseJSON = {}
+        DatabaseJSON["TypeOfActivity"] = Overall
+        for LoopIdx,Property in enumerate(PropertiesNames):
+            if type(Property) == list:
+                ListProperty = request.GET[Property[1]]
+                JSONkey = "Concretly" + str(LoopIdx)
+                DatabaseJSON[JSONkey] = ListProperty
+            elif type(Property) == str:
+                Quality = request.GET[Property]
+                DatabaseJSON[Property] = Quality
+        Emotions = ReDiDa["Emotions"]
+        for Emotion in Emotions:
+            DatabaseJSON[Emotion] = request.GET[Emotion]
+        ActivityStart = request.GET["StartTime"]
+        DatabaseJSON["ActivityStart"]  = ActivityStart
+        ActivityEnd = request.GET["EndTime"]
+        DatabaseJSON["ActivityEnd"] = ActivityEnd
+        ID = Database.InsertChapter(json.dumps(DatabaseJSON), request, ActivityStart,ActivityEnd)
+        TemplateChapters.append(ID)
+    except MultiValueDictKeyError:
+        pass
 
-    Database.InsertChapter(json.dumps(DatabaseJSON), request)
-    return redirect('Diary')
-   
-            
+    AddedChapters = int(request.GET["AddChaptersCount"])
+    for i in range(1,AddedChapters+1):
+        try:
+            Overall = request.GET["TypeOfActivity"+str(i)]
+            Overall = json.loads(Overall)
+            Overall = Overall["Python"]
+            PropertiesNames = ReDiDa["Activities"][Overall]
+            DatabaseJSON = {}
+            DatabaseJSON["TypeOfActivity"] = Overall
+            for LoopIdx,Property in enumerate(PropertiesNames):
+                if type(Property) == list:
+                    ListProperty = request.GET[Property[1]+str(i)]
+                    JSONkey = "Concretly" + str(LoopIdx)
+                    DatabaseJSON[JSONkey] = ListProperty
+                elif type(Property) == str:
+                    Quality = request.GET[Property+str(i)]
+                    DatabaseJSON[Property] = Quality
+            Emotions = ReDiDa["Emotions"]
+            for Emotion in Emotions:
+                DatabaseJSON[Emotion] = request.GET[Emotion+str(i)]
+            ActivityStart = request.GET["StartTime"+str(i)]
+            DatabaseJSON["ActivityStart"]  = ActivityStart
+            ActivityEnd = request.GET["EndTime"+str(i)]
+            DatabaseJSON["ActivityEnd"] = ActivityEnd
+            ID = Database.InsertChapter(json.dumps(DatabaseJSON), request, ActivityStart,ActivityEnd)
+            TemplateChapters.append(ID)
+        except MultiValueDictKeyError:
+            pass
+    DiaryData.close()
+    if str(NewTemCom) =="1":
+        TemplateName = request.GET["NewTemplateName"]
+        TemplateName = TemplateName + "Q"+ str(round(time.time()))
+        Database.InsertChapterTemplate(request,TemplateChapters,TemplateName)
+    ReturnSpace = request.GET["CurrentURL"]
+    return redirect(ReturnSpace)
+
+def HeroSelfInclude(request):
+    ProductName = request.GET["ProductName"]
+    HeroID = Authentication.GetID(request)
+    ProductID = Database.GetProductID(ProductName)
+    Database.CreateHeroProductConnection(ProductID,HeroID,'Client')
+    URL = CallProduct(ProductName)
+    return redirect(URL)
+
+def Calendar(request):
+    RawDate = json.loads(request.GET["CurrentMonth"])
+    Month = int(RawDate["Month"]) + 1
+    Year = int(RawDate["Year"])
+    Weekday = (datetime.date(Year,Month,1)).weekday() + 1
+    MonthLen = (datetime.date(Year,Month + 1,1) - datetime.date(Year,Month,1)).days
+    MonthDays = []
+    for Day in range(1,MonthLen+1):
+        MonthDays.append(Day)
+ 
+    LanguagePack = LanguageLoader.Language("Calendar","Czech")
+    LanguagePack["Weekday"] = Weekday
+    LanguagePack["WeekRadio"] = [1,2,3,4,5,6,7]
+    LanguagePack["MonthDays"] = MonthDays
+    LanguagePack["Month"] = Month
+    LanguagePack["Year"] = Year
+    Decision  = Authentication.CheckUser(request,"User\Calendar.html",LanguagePack)  
+    return Decision
+
+def CallDay(request):
+    LanguagePack = LanguageLoader.Language("Diary","Czech")
+    DiaryData = open('Dataseer\Chapters.json','r')
+    ReDiDa = json.load(DiaryData)
+    DiaryData.close()
+    LanguagePack["DiaryData"] = ReDiDa
+    LanguagePack["Templates"] = Database.GetiDiaryTemplates(request)
+    #Get right day
+    Json = request.GET["CalledDate"]
+    Date = json.loads(Json.replace("\'","\""))
+    Day = int(Date["Day"])
+    Month = int(Date["Month"])
+    Year = int(Date["Year"])
+    FullDate = datetime.date(Year,Month,Day)
+    LanguagePack["Date"] = str(FullDate)
+    LanguagePack["DayHistory"] = Database.StoriesOfPast(request,FullDate)
+    #GoToPage
+    LanguagePack["Role"] = "Memory"
+    Decision  = Authentication.CheckUser(request,"User\Diary.html",LanguagePack)  
+    return Decision

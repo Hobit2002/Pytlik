@@ -311,10 +311,9 @@ def ConnectHero(request,Role,HeroName,ProductName):
                 WHERE ActiveUser_ID =""" + str(UserID)
     mycursor.execute(PartialCommand)
     PassiveList = mycursor.fetchall()
-    SmoothList = ""
-    for ListPart in PassiveList:
+    SmoothList = str(PassiveList[0][0])
+    for ListPart in PassiveList[1:]:
         SmoothList = SmoothList +", " + str(ListPart[0])
-        SmoothList = SmoothList[1:]
     if len(SmoothList)>1:
         MainCommand = """SELECT PasiveUser_ID
                        FROM PasiveUsers
@@ -340,11 +339,15 @@ def ConnectHero(request,Role,HeroName,ProductName):
                     WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
         ActiveSelector.execute(MainCommand,[HeroName])
         ActiveUserID = ActiveSelector.fetchall()[0][0]
-        TeamInsertor = mydb.cursor()
-        INScommand = """INSERT INTO REL_Projects_ActiveUsers(ProjectID, ActiveUserID, RelationType) VALUES (%s,%s,%s)"""
-        Values = [ProductID,ActiveUserID,Role]
-        TeamInsertor.execute(INScommand,Values)
-        mydb.commit()
+        CreateHeroProductConnection(ProductID,ActiveUserID,Role)
+
+def CreateHeroProductConnection(ProductID,ActiveUserID,Role):
+    mydb = Connect()
+    TeamInsertor = mydb.cursor()
+    INScommand = """INSERT INTO REL_Projects_ActiveUsers(ProjectID, ActiveUserID, RelationType) VALUES (%s,%s,%s)"""
+    Values = [ProductID,ActiveUserID,Role]
+    TeamInsertor.execute(INScommand,Values)
+    mydb.commit()
 
 def UnconnectHero(Role,ProductName,HeroName="", HeroID=""):
     ProductID = GetProductID(ProductName)
@@ -365,10 +368,9 @@ def UnconnectHero(Role,ProductName,HeroName="", HeroID=""):
                 WHERE ProjectID =""" + str(ProductID)
     mycursor.execute(PartialCommand)
     PassiveList = mycursor.fetchall()
-    SmoothList = ""
-    for ListPart in PassiveList:
+    SmoothList = str(PassiveList[0][0])
+    for ListPart in PassiveList[1:]:
         SmoothList = SmoothList +", " + str(ListPart[0])
-        SmoothList = SmoothList[1:]
     MainCommand = """SELECT PasiveUser_ID
                    FROM PasiveUsers
                     WHERE  PasiveUser_Nickname = %s AND
@@ -403,7 +405,7 @@ def ShowTasks(ProductName):
     ProductID = GetProductID(ProductName)
     mydb = Connect()
     mycursor = mydb.cursor()
-    PartialCommand="""SELECT Task_Content, Hero_ID, Hero_Nature
+    PartialCommand="""SELECT Task_Content, Hero_ID, Hero_Nature,Task_WorkTime, Task_Deadline
                 FROM Tasks
                 WHERE Project_ID =""" + str(ProductID) + """ ORDER BY Task_DeadLine"""
                 
@@ -418,10 +420,12 @@ def ShowTasks(ProductName):
             ToSend.append({})
             UpdatedDict = ToSend[(len(ToSend)-1)]
             #Insert task content
-            Task = LanguageLoader.LoadWord(RealTask, "Czech")
+            Task = LanguageLoader.LoadTaskName(RealTask, "Czech")
             UpdatedDict["Task"] = Task
             UpdatedDict["RealTask"] = RealTask
             UpdatedDict["Hero"] = []
+            UpdatedDict["WorkTime"] = str(AppendMaterial[3])
+            UpdatedDict["Deadline"] = (str(AppendMaterial[4])[:(len(str(AppendMaterial[4]))-3)]).replace(" ","T")
         else:
             UpdatedDict = ToSend[SetUpTasks.index(RealTask)]
 
@@ -468,12 +472,12 @@ def GetTaskID(TaskName,ProductName):
     TaskID = mycursor.fetchall()
     return TaskID[0][0]
 
-def CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, Alter):
+def CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, Alter, request=''):
     ProductID = GetProductID(ProductName)
     if Alter:
         DatabaseName = TaskName + "Skaut" + str(ProductID)+str(time.time())
         DatabaseName = DatabaseName.replace(".","GJK")
-        LanguageLoader.AddToDictionary("Czech",DatabaseName,TaskName)
+        LanguageLoader.AddToDatactionary("Czech",DatabaseName,TaskName)
         TaskName = DatabaseName
     
     #Investigate, if HeroName referes to Active or Pasive user
@@ -484,10 +488,9 @@ def CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, Alter):
                 WHERE ProjectID =""" + str(ProductID)
     mycursor.execute(PartialCommand)
     PassiveList = mycursor.fetchall()
-    SmoothList = ""
-    for ListPart in PassiveList:
-        SmoothList = SmoothList +",  " + str(ListPart[0])
-        SmoothList = SmoothList[1:]
+    SmoothList = str(PassiveList[0][0])
+    for ListPart in PassiveList[1:]:
+        SmoothList = SmoothList +", " + str(ListPart[0])
     Holmes = mydb.cursor()
     Command = """SELECT PasiveUser_ID
                  FROM PasiveUsers
@@ -501,7 +504,30 @@ def CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, Alter):
                    FROM ActiveUsers
                     WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
         Poirot.execute(MainCommand,[HeroName])
-        ID = Poirot.fetchall()[0][0]
+        Result = Poirot.fetchall()
+
+        if Result == []:
+            UserID = Authentication.GetID(request)
+            UserHerald = mydb.cursor()
+            SocialMission= """SELECT PasiveUserID 
+                FROM REL_ActiveUsers_PasiveUsers
+                WHERE ActiveUserID =""" + str(UserID)
+            UserHerald.execute(PartialCommand)
+            PassiveList = UserHerald.fetchall()
+            SmoothList = str(PassiveList[0][0])
+            for ListPart in PassiveList[1:]:
+                SmoothList = SmoothList +", " + str(ListPart[0])
+            Holmes = mydb.cursor()
+            Command = """SELECT PasiveUser_ID
+                 FROM PasiveUsers
+                 WHERE PasiveUser_Nickname = %s AND PasiveUser_ID IN (""" + SmoothList + """)"""
+            Holmes.execute(Command, [HeroName])
+            Result = Holmes.fetchall()
+            ConnectHero(request,'TeamMember',HeroName,ProductName)
+
+
+
+        ID = Result[0][0]
         Nature = "Active"
     elif len(Result)==1:
         ID = Result[0][0]
@@ -567,7 +593,7 @@ def DeleteProduct(ProductName):
     mydb.commit()
     return True
 
-def AddTaskHero(ProductName,TaskName,NewTaskHero):
+def AddTaskHero(ProductName,TaskName,NewTaskHero,request=''):
     #Get task times
     mydb = Connect()
     ShowLeader = mydb.cursor()
@@ -579,7 +605,7 @@ def AddTaskHero(ProductName,TaskName,NewTaskHero):
     Deadline = Result[0]
     WorkTime = Result[1]
     # Insert new team collaborator
-    CreateTask(ProductName,TaskName,NewTaskHero,Deadline,WorkTime,False)
+    CreateTask(ProductName,TaskName,NewTaskHero,Deadline,WorkTime,False,request)
 
 def DeleteTaskHero(TaskName,HeroIndex):
     mydb=Connect()
@@ -617,11 +643,71 @@ def LookForUser(Wanted):
     Boss = HeadHunter.fetchall()
     return Boss
 
-def InsertChapter(DatabaseJSON, request):
+def InsertChapter(DatabaseJSON, request,ActivityStart,ActivityEnd):
     UserID = Authentication.GetID(request)
     BilboHouse = Connect()
     Bilbo = BilboHouse.cursor()
-    MemoryStrategy = """INSERT INTO Chapters(Chapter_Content,UserID)
-                         VALUES(%s, %s)"""
-    Bilbo.execute(MemoryStrategy,[DatabaseJSON, UserID])
+    MemoryStrategy = """INSERT INTO Chapters(Chapter_Content,UserID,Chapter_Start,Chapter_End)
+                         VALUES(%s, %s,%s, %s)"""
+    Bilbo.execute(MemoryStrategy,[DatabaseJSON, UserID,ActivityStart,ActivityEnd])
     BilboHouse.commit()
+    Frodo = BilboHouse.cursor()
+    Frodo.execute("""SELECT Chapter_ID FROM Chapters WHERE Chapter_Content = %s AND UserID = %s""",[DatabaseJSON, UserID])
+    return Frodo.fetchall()[0][0]
+
+def InsertChapterTemplate(request,TemplateChapters,TemplateName):
+    UserID = Authentication.GetID(request)
+    for ChapterID in TemplateChapters:
+        Rowling = Connect()
+        Potter = Rowling.cursor()
+        Potter.execute("INSERT INTO ChapterTemplates(ChapterID, UserID, TemplateName) VALUES(%s,%s,%s)",[ChapterID,UserID,TemplateName])
+        Rowling.commit()
+
+def GetiDiaryTemplates(request):
+    UserID = Authentication.GetID(request)
+    OS = Connect()
+    Jobs = OS.cursor()
+    Jobs.execute("SELECT ChapterID,TemplateName FROM ChapterTemplates WHERE UserID=%s",[UserID])
+    NinetiesMiracles = {}
+    for Technology in Jobs.fetchall():
+        Microsoft = Connect()
+        Gates = Microsoft.cursor()
+        Gates.execute("SELECT Chapter_Content FROM Chapters WHERE Chapter_ID=%s",[Technology[0]])
+        DOS = Gates.fetchall()
+        if Technology[1] not in NinetiesMiracles.keys():
+            NinetiesMiracles[Technology[1]]=[[],[]]
+            BaseNameForm = re.compile(r'(.*)Q' )
+            BaseNameQuest = BaseNameForm.search(Technology[1])
+            BasicName = BaseNameQuest.group()
+            PublicTemplateName = BasicName[:(len(BasicName)-1)]
+            NinetiesMiracles[Technology[1]][0].append(PublicTemplateName)
+
+        NinetiesMiracles[Technology[1]][1].append(DOS[0][0])
+    for k,v in NinetiesMiracles.items():
+        NinetiesMiracles[k][1] = str(v[1])
+
+    return NinetiesMiracles
+
+def StoriesOfPast(request,FullDate):
+    UserID = Authentication.GetID(request)
+    Folclor = Connect()
+    Erben = Folclor.cursor()
+    TailForm = """SELECT Chapter_Content 
+                 FROM Chapters
+                  WHERE CAST(Chapter_Start AS date) IN ('""" + str(FullDate) + """') AND UserID = %s
+                  ORDER BY Chapter_Start"""
+    Erben.execute(TailForm,[UserID])
+    StoryCollection = Erben.fetchall()
+    Flower = []
+    for FairyTale in StoryCollection:
+        Flower.append(FairyTale[0])
+    return Flower
+
+def DeleteDayChapters(request,SubmitFormat):
+    UserID = Authentication.GetID(request)
+    Lidice = Connect()
+    Heidi = Lidice.cursor()
+    TailForm = """DELETE FROM Chapters
+                  WHERE CAST(Chapter_Start AS date) IN ('""" + SubmitFormat + """') AND UserID = %s"""
+    Heidi.execute(TailForm,[UserID])
+    Lidice.commit()

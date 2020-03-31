@@ -1,11 +1,14 @@
 {% load static %}
-<div>
-    <form action="Home"><button onclick="Logout()"><p>{{Logout}}</p></button></form>
-    <form action="Search"><input type="text" name="LookForThis" placeholder="{{SearchHTML}}"></form>
-    <form action="Diary"><button>{{DiaryHTML}}</button></form>
-</div>
-<script type="text/javascript" src="PageManagement.js"></script>
+    <div>
+        <form action="Home"><button onclick="Logout()"><p>{{Logout}}</p></button></form>
+        <form action="Search"><input type="text" name="LookForThis" placeholder="{{SearchHTML}}"></form>
+        <form action="Diary"><button>{{DiaryHTML}}</button></form>
+        <form action="Calendar"><button name="CurrentMonth">{{CalendarHTML}}</button></form>
+    </div>
+
 <script>
+    var Now = new Date()
+    document.getElementsByName("CurrentMonth")[0].value = "{\"Month\":\"" + String(Now.getMonth()) + "\",\"Year\":\"" + String(Now.getFullYear()) + "\"}"
     function Logout() {
         document.cookie = "BasicInfo=; expires= Thu, 21 Aug 2014 20:00:00 UTC";
         document.cookie = "MetaInfo=; expires= Thu, 21 Aug 2014 20:00:00 UTC";

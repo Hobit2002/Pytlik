@@ -27,7 +27,7 @@ def Putin(FirstName, OtherNames, Password, Birthdate,Email, request):
     ID = Database.DP2(FirstName,OtherNames,Password,Email,"",Birthdate)
     token = Authentication.Authenticate(request,ID)
     Response = redirect('Home')
-    Response.set_cookie("BasicInfo", str(token), max_age = 7200)
+    Response.set_cookie("BasicInfo", str(token), max_age = 60*60*24*60)
     return Response
      
  #3. Login already registred
@@ -38,7 +38,7 @@ def Putout(request):
         ID = (Database.DP3(Password,Email))[0]
         token = Authentication.Authenticate(request,ID)
         Response = redirect('Home')
-        Response.set_cookie("BasicInfo", str(token), max_age = 7200)
+        Response.set_cookie("BasicInfo", str(token), max_age = 60*60*24*60)
         return Response
     #1.1. - b) If you can´t recognize any user, redirect visitor on the login page
     except:

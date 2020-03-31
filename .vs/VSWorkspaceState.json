@@ -5,9 +5,12 @@
     "\\languages",
     "\\Pytlik",
     "\\quiteStatic",
+    "\\quiteStatic\\Registrationstuff",
     "\\quiteStatic\\User",
-    "\\User"
+    "\\registrationstuff",
+    "\\User",
+    "\\User\\templatetags"
   ],
-  "SelectedNode": "\\quiteStatic\\User\\Diary.html",
+  "SelectedNode": "\\User\\UserViews.py",
   "PreviewInSolutionExplorer": false
 }

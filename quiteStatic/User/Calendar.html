@@ -1,0 +1,32 @@
+{% extends "activeframe.html" %}
+{% block content %}
+{% load static %}
+{% load CustFC %}
+<table>
+    <tr>
+        <th>{{MondayHTML}}</th>
+        <th>{{TuesdayHTML}}</th>
+        <th>{{WednesdayHTML}}</th>
+        <th>{{ThursdayHTML}}</th>
+        <th>{{FridayHTML}}</th>
+        <th>{{SaturdayHTML}}</th>
+        <th>{{SundayHTML}}</th>
+    </tr>
+    <tr>
+        {% for i in WeekRadio %}
+        {% if i == Weekday %}
+        {% with EmptyLoop=forloop.counter %}
+        {% for Day in MonthDays %}
+        <th><form action="CallDay"><button name="CalledDate" value="{'Day':'{{Day}}', 'Month':'{{Month}}', 'Year':'{{Year}}'}">{{Day}}. {{Month}}. {{Year}}</button></form></th>
+        {% if forloop.counter0|SmoothWeekTest:EmptyLoop == forloop.counter|RawWeekTest:EmptyLoop %}
+    </tr>
+    <tr>
+        {% endif %}
+        {% endfor %}
+        {% endwith %}
+        {% else %}
+        <th></th>{% endif %}
+        {% endfor %}
+    </tr>
+</table>
+ {% endblock %}
