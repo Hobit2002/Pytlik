@@ -78,6 +78,22 @@
     "ThursdayHTML": "Ètvrtek",
     "FridayHTML": "Pátek",
     "SaturdayHTML": "Sobota",
-    "SundayHTML": "Nedìle"
+    "SundayHTML": "Nedìle",
+    "MyProjectHTML": "Mé projekty",
+    "AProjectHTML": "projekt",
+    "AProductHTML": "produkt",
+    "StreamHTML": "Stream",
+    "InformationHTML": "Oznámení",
+    "CommentsHTML": "Pøíspìvky",
+    "ReactHTML": "Reakce",
+    "SendHTML": "Odeslat",
+    "NotificationsHTML": "Upozornìní",
+    "ProjectTeamNTF": "Byli jste pøidáni do týmu projektu ",
+    "ProductTeamNTF": "Byli jste pøidáni do týmu produktu ",
+    "NewTaskNTF": "Byl ti zadán následující úkol: ",
+    "ChatHTML": "Chat",
+    "aqMessageHTML": "zpráva",
+    "GeneralChat": "Spoleèná žvanírna",
+    "newHTML": "Nové"
   }
 }

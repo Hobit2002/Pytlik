@@ -53,6 +53,7 @@ def SendMail(request):
     Password2 = request.POST["password2"]
     if Password1==Password2:
         Token = random.randint(10**9,10**10)
+
         PreRegister = threading.Thread(target=Database.PreRegister,args=[FirstName, SecondName, Email, Birthdate, Password1,Token])
         PreRegister.start()
 
@@ -73,7 +74,7 @@ def USRvertify(request):
     Email = request.GET["Email"]
     try:
         FirstName, OtherNames, Password, Birthdate = Database.FullRegGet(token)
-    except IndexError:
+        Database.KillPreReg(Email)
+        return Putin(FirstName, OtherNames, Password, Birthdate,Email, request)
+    except ValueError:
         pass
-    Database.KillPreReg(Email)
-    return Putin(FirstName, OtherNames, Password, Birthdate,Email, request)

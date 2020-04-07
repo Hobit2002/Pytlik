@@ -49,6 +49,19 @@ urlpatterns = [
     path('SubmitDiary',UserViews.SubmitDiary, name="SubmitDiary"),
     path('HeroSelfInclude',UserViews.HeroSelfInclude, name="HeroSelfInclude"),
     path('Calendar',UserViews.Calendar, name="Calendar"),
-    path('CallDay',UserViews.CallDay, name="CallDay")
-]
+    path('CallDay',UserViews.CallDay, name="CallDay"),
+    path('NewProject',UserViews.NewProject, name="NewProject"),
+    path('Project',UserViews.Project, name="Project"),
+    path('NewProjectHero',UserViews.NewProjectHero, name ="NewProjectHero"),
+    path('DeleteProject',UserViews.DeleteProject, name ="DeleteProject"),
+    path('DeleteProjectHero',UserViews.DeleteProjectHero, name ="DeleteProjectHero"),
+    path('NewProjectProduct',UserViews.NewProjectProduct, name ="NewProjectProduct"),
+    path('NewComment',UserViews.NewComment, name="NewComment"),
+    path('AnswerProductComment',UserViews.AnswerProductComment, name="AnswerProductComment"),
+    path('DeleteNotification',UserViews.DeleteNotification, name="DeleteNotification"),
+    path('MarkNotificationAsRead',UserViews.MarkNotificationAsRead, name="MarkNotificationAsRead"),
+    path('SendChat',UserViews.SendChat, name="SendChat"),
+    path('UpdateConversation',UserViews.UpdateConversation, name="UpdateConversation"),
+    path('MarkReaded',UserViews.MarkReaded, name="MarkReaded")
+    ]
 urlpatterns += staticfiles_urlpatterns()

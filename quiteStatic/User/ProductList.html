@@ -6,14 +6,21 @@
         {% for Product in MyProducts %}
         <form method="get" action="Product"><button type="submit" name="OldProductName" value="{{Product.DatabaseName}}"><p>{{Product.BasicName}}</p></button></form>
         {% endfor %}
-        <h3>{{NewHTML}}</h3>
-        <form action="NewProduct">
-            <div id="InfoFrame">
-                <input type="text" name="ProductName" placeholder="{{Name}}">
-                <input type="text" name="ProductTemplate" placeholder="{{TemplateHTML}}">
-                <input type="datetime-local" name="ProductRelease" placeholder="{{ReleaseTimeHTML}}">
-                <input type="time" name="ProductAbsorbation" placeholder="{{AbsorbTimeHTML}}">
-            </div>
-            <button>{{Add}}</button>
-        </form>
+        <h3>{{NewHTML}} {{AProductHTML}}</h3>
+        {% if ObserverType == "Project" %}
+        <form action="NewProjectProduct">
+            {% else %}
+            <form action="NewProduct">
+                {% endif %}
+                <div id="InfoFrame">
+                    {% if ObserverType == "Project" %}
+                    <input name="ProjectName" value="{{ProjectName}}" type="hidden">
+                    {% endif %}
+                    <input type="text" name="ProductName" placeholder="{{Name}}">
+                    <input type="text" name="ProductTemplate" placeholder="{{TemplateHTML}}">
+                    <input type="datetime-local" name="ProductRelease" placeholder="{{ReleaseTimeHTML}}">
+                    <input type="time" name="ProductAbsorbation" placeholder="{{AbsorbTimeHTML}}">
+                </div>
+                <button>{{Add}}</button>
+            </form>
     </body>

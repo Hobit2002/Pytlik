@@ -1,5 +1,5 @@
 import mysql.connector
-import sys,os, json, re, time
+import sys,os, json, re, time, datetime
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
 import Consolewriter, Authentication, LanguageLoader
 
@@ -301,7 +301,18 @@ def GetProductID(ProductName):
     Result = mycursor.fetchall()
     return Result[0][0]
 
-def ConnectHero(request,Role,HeroName,ProductName):
+def GetProjectID(ProjectName):
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    Command=("""SELECT RealProject_ID
+            FROM RealProjects
+            WHERE RealProject_Name = %s """)
+    VariTuple=[ProjectName]
+    mycursor. execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    return Result[0][0]
+
+def ConnectHero(request,Role,HeroName,ProductName,URL):
     UserID = Authentication.GetID(request)
     ProductID = GetProductID(ProductName)
     mydb = Connect()
@@ -339,6 +350,15 @@ def ConnectHero(request,Role,HeroName,ProductName):
                     WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
         ActiveSelector.execute(MainCommand,[HeroName])
         ActiveUserID = ActiveSelector.fetchall()[0][0]
+        if Role == "TeamMember":
+            #Send Notification
+            BaseNameForm = re.compile(r'(.*)ß' )
+            BaseNameQuest = BaseNameForm.search(ProductName)
+            BasicName = BaseNameQuest.group()
+            BasicName = BasicName[:(len(BasicName)-1)]
+            Content = LanguageLoader.LoadWord("ProductTeamNTF","Czech") + BasicName
+            SendNotification(ActiveUserID,Content,BasicName,URL)
+
         CreateHeroProductConnection(ProductID,ActiveUserID,Role)
 
 def CreateHeroProductConnection(ProductID,ActiveUserID,Role):
@@ -474,88 +494,95 @@ def GetTaskID(TaskName,ProductName):
 
 def CreateTask(ProductName,TaskName,HeroName,Deadline,WorkTime, Alter, request=''):
     ProductID = GetProductID(ProductName)
+    #If the task hasn´t exist yet, create him a database name.
     if Alter:
-        DatabaseName = TaskName + "Skaut" + str(ProductID)+str(time.time())
-        DatabaseName = DatabaseName.replace(".","GJK")
+        DatabaseName = TaskName + "l" + str(ProductID)+str(time.time())
+        DatabaseName = DatabaseName.replace(".","d")
         LanguageLoader.AddToDatactionary("Czech",DatabaseName,TaskName)
         TaskName = DatabaseName
-    
-    #Investigate, if HeroName referes to Active or Pasive user
-    mydb = Connect()
-    mycursor = mydb.cursor()
-    PartialCommand="""SELECT PasiveUserID 
-                FROM REL_Projects_PasiveUsers
-                WHERE ProjectID =""" + str(ProductID)
-    mycursor.execute(PartialCommand)
-    PassiveList = mycursor.fetchall()
-    SmoothList = str(PassiveList[0][0])
-    for ListPart in PassiveList[1:]:
-        SmoothList = SmoothList +", " + str(ListPart[0])
-    Holmes = mydb.cursor()
-    Command = """SELECT PasiveUser_ID
-                 FROM PasiveUsers
-                 WHERE PasiveUser_Nickname = %s AND PasiveUser_ID IN (""" + SmoothList + """)"""
-    Holmes.execute(Command, [HeroName])
-    HolmesStatement = Holmes.statement
-    Result = Holmes.fetchall()
-    if Result==[] and HeroName!="":
-        Poirot = mydb.cursor()
-        MainCommand = """SELECT ActiveUser_ID
-                   FROM ActiveUsers
-                    WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
-        Poirot.execute(MainCommand,[HeroName])
-        Result = Poirot.fetchall()
-
-        if Result == []:
-            UserID = Authentication.GetID(request)
-            UserHerald = mydb.cursor()
-            SocialMission= """SELECT PasiveUserID 
-                FROM REL_ActiveUsers_PasiveUsers
-                WHERE ActiveUserID =""" + str(UserID)
-            UserHerald.execute(PartialCommand)
-            PassiveList = UserHerald.fetchall()
-            SmoothList = str(PassiveList[0][0])
-            for ListPart in PassiveList[1:]:
-                SmoothList = SmoothList +", " + str(ListPart[0])
-            Holmes = mydb.cursor()
-            Command = """SELECT PasiveUser_ID
-                 FROM PasiveUsers
-                 WHERE PasiveUser_Nickname = %s AND PasiveUser_ID IN (""" + SmoothList + """)"""
-            Holmes.execute(Command, [HeroName])
-            Result = Holmes.fetchall()
-            ConnectHero(request,'TeamMember',HeroName,ProductName)
-
-
-
-        ID = Result[0][0]
-        Nature = "Active"
-    elif len(Result)==1:
-        ID = Result[0][0]
-        Nature = "Pasive"
-    elif HeroName == "":
-        ID =""
-        Nature=""
-    Leonardo = mydb.cursor()
-
-    if Alter:
+    #If the task hasn´t exist yet, create him a blank representation in database.
+        mydb=Connect()
+        Leonardo = mydb.cursor()
         ArtVision = """INSERT INTO Tasks(Project_ID,Task_Content, Task_Deadline, Task_WorkTime)
                        VALUES(%s,%s,%s,%s)"""
         Values=[ProductID, TaskName,Deadline,WorkTime]
         Leonardo.execute(ArtVision,Values)
         mydb.commit()
+    if HeroName != None: 
+        #Investigate, if HeroName referes to Active or Pasive user
+        #References connected pasive user?
+        mydb = Connect()
+        mycursor = mydb.cursor()
+        PartialCommand="""SELECT PasiveUserID 
+                FROM REL_Projects_PasiveUsers
+                WHERE ProjectID =""" + str(ProductID)
+        mycursor.execute(PartialCommand)
+        PassiveList = mycursor.fetchall()
+        SmoothList = str(PassiveList[0][0])
+        for ListPart in PassiveList[1:]:
+            SmoothList = SmoothList +", " + str(ListPart[0])
+        Holmes = mydb.cursor()
+        Command = """SELECT PasiveUser_ID
+                 FROM PasiveUsers
+                 WHERE PasiveUser_Nickname = %s AND PasiveUser_ID IN (""" + SmoothList + """)"""
+        Holmes.execute(Command, [HeroName])
+        HolmesStatement = Holmes.statement
+        Result = Holmes.fetchall()
+        #References connected active user?
+        if Result==[] and HeroName!="":
+            Poirot = mydb.cursor()
+            MainCommand = """SELECT ActiveUser_ID
+                   FROM ActiveUsers
+                    WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
+            Poirot.execute(MainCommand,[HeroName])
+            Result = Poirot.fetchall()
+            #References unconnected pasive user?
+            if Result == []:
+                UserID = Authentication.GetID(request)
+                UserHerald = mydb.cursor()
+                SocialMission= """SELECT PassiveUser_ID 
+                FROM REL_ActiveUsers_PasiveUsers
+                WHERE ActiveUser_ID =""" + str(UserID)
+                UserHerald.execute(SocialMission)
+                PassiveList = UserHerald.fetchall()
+                SmoothList = str(PassiveList[0][0])
+                for ListPart in PassiveList[1:]:
+                    SmoothList = SmoothList +", " + str(ListPart[0])
+                Holmes = mydb.cursor()
+                Command = """SELECT PasiveUser_ID
+                 FROM PasiveUsers
+                 WHERE PasiveUser_Nickname = %s AND PasiveUser_ID IN (""" + SmoothList + """)"""
+                Holmes.execute(Command, [HeroName])
+                Result = Holmes.fetchall()
+                ConnectHero(request,'TeamMember',HeroName,ProductName)
+                ID = Result[0][0]
+                Nature = "Pasive"
 
-    Leonardo = mydb.cursor()
-    ArtVision = """INSERT INTO Tasks(Project_ID,Task_Content,Hero_ID, Hero_Nature, Task_Deadline, Task_WorkTime)
+            else:
+                ID = Result[0][0]
+                Nature = "Active"
+
+        elif len(Result)==1:
+            ID = Result[0][0]
+            Nature = "Pasive"
+        elif HeroName == "":
+            ID =""
+            Nature=""
+        
+
+        Leonardo = mydb.cursor()
+        ArtVision = """INSERT INTO Tasks(Project_ID,Task_Content,Hero_ID, Hero_Nature, Task_Deadline, Task_WorkTime)
                    VALUES(%s,%s,%s,%s,%s,%s)"""
-    Values=[ProductID, TaskName,ID,Nature,Deadline,WorkTime]
-    Leonardo.execute(ArtVision,Values)
-    mydb.commit()
+        Values=[ProductID, TaskName,ID,Nature,Deadline,WorkTime]
+        Leonardo.execute(ArtVision,Values)
+        mydb.commit()
 
 def VisitorRole(ProductName,request):
     try:
         UserID = Authentication.GetID(request)
     except KeyError:
-        UserID = 3
+        UserRole = "DubiousStranger"
+        return UserRole
 
     ProductID = GetProductID(ProductName)
     mydb = Connect()
@@ -711,3 +738,583 @@ def DeleteDayChapters(request,SubmitFormat):
                   WHERE CAST(Chapter_Start AS date) IN ('""" + SubmitFormat + """') AND UserID = %s"""
     Heidi.execute(TailForm,[UserID])
     Lidice.commit()
+
+def CreateProject(request, Name):
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    BasicName = Name
+    token = request.COOKIES["BasicInfo"]
+    Name = Name +"€"+str(token)
+    Command="""INSERT INTO `RealProjects`(`RealProject_Name`) VALUES (%s)"""
+    VariTuple=[Name]
+    mycursor. execute(Command,VariTuple)
+    mydb.commit()
+    Command=("""SELECT RealProject_ID
+            FROM RealProjects
+            WHERE RealProject_Name = %s""")
+    VariTuple=[Name]
+    mycursor. execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    ProjectID = Result[0][0]
+    UserID = Authentication.GetID(request)
+    Command="""INSERT INTO REL_RealProjects_ActiveUsers(RealProjectID,
+    ActiveUserID, RelationType) VALUES (%s,%s,%s)"""
+    IDs = [ProjectID,UserID,'Boss']
+    mycursor.execute(Command,IDs)
+    mydb.commit()
+    NewConversaton([UserID],LanguageLoader.LoadWord("GeneralChat","Czech"),ProjectID)
+    return ProjectID
+
+def GetProjects(request, ID=""):
+    if not ID:
+        ID = Authentication.GetID(request)
+
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    Command=("""SELECT RealProjectID
+            FROM REL_RealProjects_ActiveUsers
+            WHERE ActiveUserID= %s """)
+    VariTuple=[ID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    FinalResult = []
+    FullNames = []
+    for ToForm in Result:
+        Key = ToForm[0]
+        Command=("""SELECT RealProject_Name 
+                FROM RealProjects
+                WHERE RealProject_ID= %s """)
+        VariTuple=[Key]
+        mycursor.execute(Command,VariTuple)
+        Result2 = mycursor.fetchall()[0][0]
+        if Result2 not in FullNames:
+            FullNames.append(Result2)
+            BaseNameForm = re.compile(r'(.*)€' )
+            BaseNameQuest = BaseNameForm.search(Result2)
+            BasicName = BaseNameQuest.group()
+            BasicName = BasicName[:(len(BasicName)-1)]
+            ProductPack = {"BasicName":BasicName, "DatabaseName":Result2}
+            FinalResult.append(ProductPack)
+    return FinalResult
+
+def ProjectVisitorRole(ProjectName, request):
+    try:
+        UserID = Authentication.GetID(request)
+    except KeyError:
+        UserRole = "DubiousStranger"
+        return UserRole
+
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    Command=("""SELECT RelationType
+            FROM REL_RealProjects_ActiveUsers
+            WHERE RealProjectID= %s AND ActiveUserID =%s""")
+    VariTuple=[ProjectID,UserID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    Roles = []
+    if Result != []:
+        Roles = []
+        for Role in Result:
+            Roles.append(str(Role[0]))
+        UserRole = Roles
+    else:
+        UserRole = "DubiousStranger"
+    return UserRole
+
+def ConnectProjectHero(request,HeroName,ProjectName,NotificationRedirect):
+    UserID = Authentication.GetID(request)
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT PassiveUser_ID 
+                FROM REL_ActiveUsers_PasiveUsers
+                WHERE ActiveUser_ID =""" + str(UserID)
+    mycursor.execute(PartialCommand)
+    PassiveList = mycursor.fetchall()
+    if PassiveList != []:
+       SmoothList = str(PassiveList[0][0])
+       for ListPart in PassiveList[1:]:
+           SmoothList = SmoothList +", " + str(ListPart[0])
+       if len(SmoothList)>1:
+           MainCommand = """SELECT PasiveUser_ID
+                       FROM PasiveUsers
+                        WHERE  PasiveUser_Nickname = %s AND
+                        PasiveUser_ID IN (""" + SmoothList + """)"""
+           VariTuple = [HeroName]
+           mycursor.execute(MainCommand,VariTuple)
+           Statement = mycursor.statement
+           Result = mycursor.fetchall()
+       else:
+           Result = ""
+    else:
+        Result = []
+    try:
+        DerivatedResult = int(Result[0][0])
+        TeamInsertor = mydb.cursor()
+        INScommand = """INSERT INTO REL_RealProjects_PasiveUsers(RealProjectID, PasiveUserID, RelationType) VALUES (%s,%s,%s)"""
+        Values = [ProjectID,DerivatedResult,'TeamMember']
+        TeamInsertor.execute(INScommand,Values)
+        mydb.commit()
+    except IndexError:
+        ActiveSelector = mydb.cursor()
+        MainCommand = """SELECT ActiveUser_ID
+                   FROM ActiveUsers
+                    WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
+        ActiveSelector.execute(MainCommand,[HeroName])
+        ActiveUserID = ActiveSelector.fetchall()[0][0]
+        #Send Notification
+        BaseNameForm = re.compile(r'(.*)€' )
+        BaseNameQuest = BaseNameForm.search(ProjectName)
+        BasicName = BaseNameQuest.group()
+        BasicName = BasicName[:(len(BasicName)-1)]
+        Content = LanguageLoader.LoadWord("ProjectTeamNTF","Czech") + BasicName
+        SendNotification(ActiveUserID,Content,BasicName,NotificationRedirect)
+        #Create Conversations
+        Amalie = mydb.cursor()
+        PartyInvitation = """SELECT REL_RealProjects_ActiveUsers.ActiveUserID,
+                             CONCAT(ActiveUsers.ActiveUser_FirstName," ", ActiveUsers.ActiveUser_OtherNames)
+                             FROM REL_RealProjects_ActiveUsers
+                             LEFT JOIN ActiveUsers ON REL_RealProjects_ActiveUsers.ActiveUserID = ActiveUsers.ActiveUser_ID
+                             WHERE REL_RealProjects_ActiveUsers.RealProjectID=%s
+                            AND (REL_RealProjects_ActiveUsers.RelationType = 'TeamMember'
+                           OR REL_RealProjects_ActiveUsers.RelationType = 'Boss')"""
+        Amalie.execute(PartyInvitation,[ProjectID])
+        Visitors = Amalie.fetchall()
+        for VisitorNum,Visitor in enumerate(Visitors):
+            NewConversaton([Visitor[0],ActiveUserID],(HeroName+"+"+Visitor[1]),ProjectID=ProjectID,VisitorNum=VisitorNum)
+
+        CreateHeroProjectConnection(ProjectID,ActiveUserID,'TeamMember')
+
+def CreateHeroProjectConnection(ProjectID,ActiveUserID,Role):
+    mydb = Connect()
+    TeamInsertor = mydb.cursor()
+    INScommand = """INSERT INTO REL_RealProjects_ActiveUsers(RealProjectID, ActiveUserID, RelationType) VALUES (%s,%s,%s)"""
+    Values = [ProjectID,ActiveUserID,Role]
+    TeamInsertor.execute(INScommand,Values)
+    mydb.commit()
+    GeneralChatKeeper = mydb.cursor()
+    GeneralChatCoordinates = """SELECT ID FROM Conversations WHERE RealProjectID = %s AND Name=%s"""
+    Coordinates = [ProjectID,LanguageLoader.LoadWord("GeneralChat","Czech")]
+    GeneralChatKeeper.execute(GeneralChatCoordinates,Coordinates)
+    GeneralChatID = GeneralChatKeeper.fetchall()[0][0]
+    ConnectWithConversation(GeneralChatID,ActiveUserID)
+
+def ShowProjectTeam(ProjectName):
+    Team = []
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    #Pasive Users
+    Command=("""SELECT PasiveUserID
+            FROM REL_RealProjects_PasiveUsers
+            WHERE RealProjectID= %s """)
+    VariTuple=[ProjectID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    mycursor2 = mydb.cursor()
+    for ToForm in Result:
+        Key = ToForm[0]
+        Command=("""SELECT PasiveUser_Nickname 
+                FROM PasiveUsers
+                WHERE PasiveUser_ID= %s """)
+        VariTuple=[Key]
+        mycursor2.execute(Command,VariTuple)
+        Result2 = (mycursor2.fetchall())[0][0]
+        Team.append(Result2)
+
+    #Same things for active
+    Command=("""SELECT ActiveUserID
+            FROM REL_RealProjects_ActiveUsers
+            WHERE RealProjectID= %s """)
+    VariTuple=[ProjectID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    mycursor2 = mydb.cursor()
+    for ToForm in Result:
+        Key = ToForm[0]
+        Command=("""SELECT CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) 
+                FROM ActiveUsers
+                WHERE ActiveUser_ID= %s """)
+        VariTuple=[Key]
+        mycursor2.execute(Command,VariTuple)
+        Result2 = (mycursor2.fetchall())[0][0]
+        Team.append(Result2)
+    return Team
+
+def CheckProjectBoss(request, ProjectName):
+    VisitorRoles = ProjectVisitorRole(ProjectName,request)
+    if "{'Boss'}" in VisitorRoles:
+        return True
+    else:
+        return False
+
+def DeleteProject(ProjectName):
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    BurnoutGuy = mydb.cursor()
+    DELcommand = """DELETE FROM RealProjects 
+                    WHERE RealProject_ID = %s"""
+    BurnoutGuy.execute(DELcommand,[ProjectID])
+    mydb.commit()
+    return True
+
+def UnconnectProjectHero(Role,ProjectName,HeroName="", HeroID=""):
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    #Self delete
+    if HeroID != "":
+        TeamInsertor = mydb.cursor()
+        DELcommand = """DELETE FROM REL_RealProjects_ActiveUsers
+                        WHERE RealProjectID=%s AND ActiveUserID=%s AND RelationType=%s"""
+        Values = [ProjectID,HeroID,Role]
+        TeamInsertor.execute(DELcommand,Values)
+        mydb.commit()
+        return True
+    #Delete by Boss
+    try:
+        PartialCommand="""SELECT PasiveUserID 
+                FROM REL_RealProjects_PasiveUsers
+                WHERE RealProjectID =""" + str(ProjectID)
+        mycursor.execute(PartialCommand)
+        PassiveList = mycursor.fetchall()
+        SmoothList = str(PassiveList[0][0])
+        for ListPart in PassiveList[1:]:
+            SmoothList = SmoothList +", " + str(ListPart[0])
+        MainCommand = """SELECT PasiveUser_ID
+                   FROM PasiveUsers
+                    WHERE  PasiveUser_Nickname = %s AND
+                    PasiveUser_ID IN (""" + SmoothList + ")"
+        VariTuple = [HeroName]
+        mycursor.execute(MainCommand,VariTuple)
+        Statement = mycursor.statement
+        Result = mycursor.fetchall()
+        DerivatedResult = int(Result[0][0])
+        TeamInsertor = mydb.cursor()
+        DELcommand = """DELETE FROM REL_RealProjects_PasiveUsers 
+                        WHERE RealProjectID = %s AND PasiveUserID = %s AND RelationType = %s"""
+        Values = [int(ProjectID),DerivatedResult,Role]
+        TeamInsertor.execute(DELcommand,Values)
+        mydb.commit()
+    except IndexError:
+        ActiveSelector = mydb.cursor()
+        MainCommand = """SELECT ActiveUser_ID
+                   FROM ActiveUsers
+                    WHERE  CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames) = %s"""
+        ActiveSelector.execute(MainCommand,[HeroName])
+        ActiveUserID = ActiveSelector.fetchall()[0][0]
+        TeamInsertor = mydb.cursor()
+        DELcommand = """DELETE FROM REL_RealProjects_ActiveUsers
+                        WHERE RealProjectID=%s AND ActiveUserID=%s AND RelationType=%s"""
+        Values = [ProjectID,ActiveUserID,Role]
+        TeamInsertor.execute(DELcommand,Values)
+        mydb.commit()
+
+def IntroduceTeam(ProjectName,ProductID):
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    #Pasive team members
+    #Pasive Users
+    mycursor= mydb.cursor()
+    Command=("""SELECT PasiveUserID
+            FROM REL_RealProjects_PasiveUsers
+            WHERE RealProjectID= %s AND RelationType='TeamMember'""")
+    VariTuple=[ProjectID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    mycursor2 = mydb.cursor()
+    for ToForm in Result:
+        Key = ToForm[0]
+        Command="""INSERT INTO REL_Projects_PasiveUsers(PasiveUserID,ProjectID,RelationType) 
+                VALUES(%s,%s,%s)"""
+        VariTuple=[Key, ProductID,'TeamMember']
+        mycursor2.execute(Command,VariTuple)
+        mydb.commit()
+    #Active team members
+    Command="""SELECT ActiveUserID
+            FROM REL_RealProjects_ActiveUsers
+            WHERE RealProjectID= %s AND (RelationType='TeamMember' OR RelationType='Boss')"""
+    VariTuple=[ProjectID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    mycursor2 = mydb.cursor()
+    for ToForm in Result:
+        Key = ToForm[0]
+        Command="""INSERT INTO REL_Projects_ActiveUsers(ActiveUserID,ProjectID,RelationType) 
+                VALUES(%s,%s,%s)"""
+        VariTuple=[Key, ProductID,'TeamMember']
+        mycursor2.execute(Command,VariTuple)
+        mydb.commit()
+
+def CreatProductOfProject(ProjectName,ProductID):
+    mydb = Connect()
+    ProjectID = GetProjectID(ProjectName)
+    TeamInsertor = mydb.cursor()
+    INScommand = """INSERT INTO REL_RealProjects_Projects(RealProjectID, ProjectID) VALUES (%s,%s)"""
+    Values = [ProjectID,ProductID]
+    TeamInsertor.execute(INScommand,Values)
+    mydb.commit()
+
+def GetProjectProducts(ProjectName):
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    Command=("""SELECT ProjectID
+            FROM REL_RealProjects_Projects
+            WHERE RealProjectID= %s """)
+    VariTuple=[ProjectID]
+    mycursor. execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    FinalResult = []
+    FullNames = []
+    for ToForm in Result:
+        Key = ToForm[0]
+        Command=("""SELECT Project_Name 
+                FROM Projects
+                WHERE Project_ID= %s """)
+        VariTuple=[Key]
+        mycursor.execute(Command,VariTuple)
+        Result2 = mycursor.fetchall()[0][0]
+        if Result2 not in FullNames:
+            FullNames.append(Result2)
+            BaseNameForm = re.compile(r'(.*)ßđ€9@' )
+            BaseNameQuest = BaseNameForm.search(Result2)
+            BasicName = BaseNameQuest.group()
+            BasicName = BasicName[:(len(BasicName)-5)]
+            ProductPack = {"BasicName":BasicName, "DatabaseName":Result2}
+            FinalResult.append(ProductPack)
+    return FinalResult
+
+def CreateProjectComment(request, ProjectName, CommentContent):
+    mydb = Connect()
+    UserID = Authentication.GetID(request)
+    ProjectID = GetProjectID(ProjectName)
+    TeamInsertor = mydb.cursor()
+    INScommand = """INSERT INTO RealProjectsComments(RPComment_RealProjectID, RPComment_ActiveUserID,RPComment_Content) VALUES (%s,%s,%s)"""
+    Values = [ProjectID,UserID,CommentContent]
+    TeamInsertor.execute(INScommand,Values)
+    mydb.commit()
+
+def GetProjectComments(ProjectName):
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT RPComment_ActiveUserID, RPComment_Content, CAST(RPComment_BornTime AS CHAR(20)),RPComment_ID
+                FROM RealProjectsComments
+                WHERE RPComment_RealProjectID =""" + str(ProjectID) + """ ORDER BY RPComment_BornTime DESC"""
+                
+    mycursor.execute(PartialCommand)
+    CommentList = mycursor.fetchall()
+    ToSend = []
+    for AppendMaterial in CommentList:
+        ToSend.append({})
+        UpdatedDict=ToSend[(len(ToSend)-1)]
+        UpdatedDict["Content"] = AppendMaterial[1]
+        UpdatedDict["BornTime"] = AppendMaterial[2]
+            #Insert hero
+        Samuel = mydb.cursor()
+        HeroID = AppendMaterial[0]
+        ProphetMission = """SELECT CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames)
+                                FROM ActiveUsers
+                                WHERE ActiveUser_ID=%s"""
+        Samuel.execute(ProphetMission, [HeroID])
+        Kings = Samuel.fetchall()
+        KingSaul = Kings[0][0]
+        UpdatedDict["Speaker"]=KingSaul
+        #CollectReactions
+        CommentID = AppendMaterial[3]
+        mydb = Connect()
+        mycursor = mydb.cursor()
+        PartialCommand="""SELECT ActiveUserID, Content
+                FROM RPCAnswers
+                WHERE CommentID =""" + str(CommentID) + """ ORDER BY AnswerTime"""
+                
+        mycursor.execute(PartialCommand)
+        CommentList = mycursor.fetchall()
+        Reactions = []
+        for Reaction in CommentList:
+            Reactions.append({})
+            ReactionParameters = Reactions[(len(Reactions)-1)]
+            ReactionParameters["Content"] = Reaction[1]
+            Samuel = mydb.cursor()
+            HeroID = Reaction[0]
+            ProphetMission = """SELECT CONCAT(ActiveUser_FirstName," ", ActiveUser_OtherNames)
+                                FROM ActiveUsers
+                                WHERE ActiveUser_ID=%s"""
+            Samuel.execute(ProphetMission, [HeroID])
+            Kings = Samuel.fetchall()
+            KingSaul = Kings[0][0]
+            ReactionParameters["Speaker"]=KingSaul
+        UpdatedDict["Reactions"] = Reactions
+    #Return
+    return ToSend
+
+def GetCommentID(ProjectName,BornTime):
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT RPComment_ID
+                FROM RealProjectsComments
+                WHERE RPComment_RealProjectID =%s AND RPComment_BornTime = %s"""
+    Values = [ProjectID,BornTime]            
+    mycursor.execute(PartialCommand, Values)
+    CommentList = mycursor.fetchall()[0][0]
+    return CommentList
+
+def AnswerProjectComment(request, ProjectName, Reaction,BornTime):
+    UserID = Authentication.GetID(request)
+    CommentID = GetCommentID(ProjectName,BornTime)
+    Foukalka = Connect()
+    Nonsense = Foukalka.cursor()
+    AugustinianIdea = """INSERT INTO RPCAnswers(ActiveUserID,CommentID,Content)
+                          VALUES(%s,%s,%s)"""
+    Nonsense.execute(AugustinianIdea,[UserID,CommentID,Reaction])
+    Foukalka.commit()
+
+def GetNotifications(request):
+    ID = Authentication.GetID(request)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    Command=("""SELECT Head,Content,Sawn, ID,Redirect
+            FROM Notifications
+            WHERE ActiveUserID= %s 
+            ORDER BY SendingTime DESC""")
+    VariTuple=[ID]
+    mycursor.execute(Command,VariTuple)
+    Result = mycursor.fetchall()
+    AllNotifications = []
+    for ToForm in Result:
+        AllNotifications.append({})
+        NotificationParameters = AllNotifications[(len(AllNotifications)-1)]
+        NotificationParameters["Head"] = ToForm[0]
+        NotificationParameters["Content"] = ToForm[1]
+        NotificationParameters["Sawn"] = ToForm[2]
+        NotificationParameters["ID"] = ToForm[3]
+        NotificationParameters["Redirect"] = ToForm[4]
+
+    return AllNotifications
+
+def SendNotification(ActiveUserID,Content,Head,Redirect):
+    Facebook = Connect()
+    Medved = Facebook.cursor()
+    COMMAND ="""INSERT INTO Notifications(ActiveUserID,Content,Head,Redirect) VALUES(%s,%s,%s,%s)"""
+    Values = [ActiveUserID,Content,Head,Redirect]
+    Medved.execute(COMMAND,Values)
+    Facebook.commit()
+
+def DeleteNotification(request,ID):
+    UserID = Authentication.GetID(request)
+    GrimPlace = Connect()
+    Robspiere = GrimPlace.cursor()
+    Verdict = "DELETE FROM Notifications WHERE ActiveUserID = %s AND ID= %s"
+    Sins = [UserID, ID]
+    Robspiere.execute(Verdict,Sins)
+    GrimPlace.commit()
+
+def ReadNotification(request,ID):
+    UserID = Authentication.GetID(request)
+    GrimPlace = Connect()
+    Robspiere = GrimPlace.cursor()
+    Verdict = "UPDATE Notifications SET Sawn=1 WHERE ActiveUserID = %s AND ID= %s"
+    Sins = [UserID, ID]
+    Robspiere.execute(Verdict,Sins)
+    GrimPlace.commit()
+
+def NewConversaton(Users,Name,ProjectID="",VisitorNum=""):
+    mydb = Connect()
+    SocialInsertor = mydb.cursor()
+    INScommand = """INSERT INTO Conversations(ID,Name, RealProjectID) VALUES (%s,%s,%s)"""
+    ID = int(str(VisitorNum)+str(round(time.time())))
+    Values = [ID,Name,ProjectID]
+    SocialInsertor.execute(INScommand,Values)
+    mydb.commit()
+    for User in Users:
+        ConnectWithConversation(ID,User)
+
+def GetProjectConversations(ProjectName,request):
+    UserID = Authentication.GetID(request)
+    ProjectID = GetProjectID(ProjectName)
+    mydb = Connect()
+    mycursor = mydb.cursor()
+    PartialCommand="""SELECT Conversations.Name, Conversations.ID
+                FROM REL_ActiveUsers_Conversations
+                LEFT JOIN Conversations ON REL_ActiveUsers_Conversations.ConversationID = Conversations.ID 
+                WHERE Conversations.RealProjectID = %s AND REL_ActiveUsers_Conversations.UserID = %s"""
+    mycursor.execute(PartialCommand,[ProjectID,UserID])
+    ConversationList = mycursor.fetchall()
+    Conversations = []
+    for Conversation in ConversationList:
+        Conversations.append({})
+        UpdatedDict = Conversations[len(Conversations)-1]
+        UpdatedDict["Name"] = Conversation[0]
+        UpdatedDict["ID"] = Conversation[1]
+        UpdatedDict["NewCount"] = UnreadChatsCount(Conversation[1],UserID)
+        MessageCollector = mydb.cursor()
+        MissionMotto = """SELECT RealProjectsChats.Content,
+                             CONCAT(ActiveUsers.ActiveUser_FirstName," ", ActiveUsers.ActiveUser_OtherNames), CAST(RealProjectsChats.BornTime AS CHAR(20))
+                             FROM RealProjectsChats
+                             LEFT JOIN ActiveUsers ON RealProjectsChats.AuthorID = ActiveUsers.ActiveUser_ID
+                             WHERE RealProjectsChats.ConversationID=%s
+                             ORDER BY RealProjectsChats.BornTime"""
+        MessageCollector.execute(MissionMotto,[Conversation[1]])
+        Posts = MessageCollector.fetchall()
+        UpdatedDict["Posts"] = Posts
+        try:
+            UpdatedDict["Actuality"] = Posts[len(Posts)-1][2]
+        except IndexError:
+            pass
+    return Conversations
+
+def AddChatMessage(request, ConversationID, Content):
+    UserID = Authentication.GetID(request)
+    Foukalka = Connect()
+    Nonsense = Foukalka.cursor()
+    AugustinianIdea = """INSERT INTO RealProjectsChats(AuthorID, Content, ConversationID)
+                          VALUES(%s,%s,%s)"""
+    Nonsense.execute(AugustinianIdea,[UserID,Content,ConversationID])
+    Foukalka.commit()
+
+def LoadChat( ConversationID, LastTime):
+    mydb=Connect()
+    MessageCollector = mydb.cursor()
+    MissionMotto = """SELECT RealProjectsChats.Content,
+                             CONCAT(ActiveUsers.ActiveUser_FirstName," ", ActiveUsers.ActiveUser_OtherNames), CAST(RealProjectsChats.BornTime AS CHAR(20))
+                             FROM RealProjectsChats
+                             LEFT JOIN ActiveUsers ON RealProjectsChats.AuthorID = ActiveUsers.ActiveUser_ID
+                             WHERE RealProjectsChats.ConversationID=%s AND RealProjectsChats.BornTime > %s
+                             ORDER BY RealProjectsChats.BornTime"""
+    MessageCollector.execute(MissionMotto,[ConversationID, LastTime])
+    Posts = MessageCollector.fetchall()
+    return Posts
+
+def ConnectWithConversation(ConversationID,UserID):
+    mydb = Connect()
+    PeopleConecter = mydb.cursor()
+    Invitation = """INSERT INTO REL_ActiveUsers_Conversations(ConversationID,UserID) VALUES (%s,%s)"""
+    Values = [ConversationID,UserID]
+    PeopleConecter.execute(Invitation,Values)
+    mydb.commit()
+
+def UnreadChatsCount(ConversationID,UserID):
+    mydb = Connect()
+    MessageCollector = mydb.cursor()
+    MissionMotto = """SELECT COUNT(RealProjectsChats.ID)
+                             FROM RealProjectsChats
+                             LEFT JOIN REL_ActiveUsers_Conversations ON REL_ActiveUsers_Conversations.ConversationID = RealProjectsChats.ConversationID
+                             WHERE RealProjectsChats.ConversationID=%s
+                            AND REL_ActiveUsers_Conversations.LastChecked < RealProjectsChats.BornTime
+                           AND REL_ActiveUsers_Conversations.UserID = %s """
+    MessageCollector.execute(MissionMotto,[ConversationID,UserID])
+    Postcount = MessageCollector.fetchall()
+    return Postcount[0][0]
+
+def UpdateConersationLastLook(ConversationID,request):
+    UserID = Authentication.GetID(request)
+    GrimPlace = Connect()
+    Robspiere = GrimPlace.cursor()
+    Verdict = "UPDATE REL_ActiveUsers_Conversations SET LastChecked = %s WHERE UserID = %s AND ConversationID= %s"
+    Sins = [datetime.datetime.fromtimestamp(time.time()),UserID, ConversationID]
+    Robspiere.execute(Verdict,Sins)
+    GrimPlace.commit()

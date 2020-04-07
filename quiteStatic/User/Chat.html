@@ -1,0 +1,83 @@
+{% load static %}
+{% load CustFC %}
+<h2>{{ChatHTML}}</h2>
+
+{% for Conversation in Conversations %}
+<div id="{{Conversation.ID}}Posts" class="Posts">
+    <div id="{{Conversation.ID}}Header">
+        <input type="hidden" name="{{Conversation.ID}}" value="{{Conversation.Actuality}}">
+        <h3>{{Conversation.Name}}</h3>
+        <div id="ChatCount{{Conversation.ID}}"> <h4>{{newHTML}}: {{Conversation.NewCount}}</h4></div>
+        <div id="WhenLess{{Conversation.ID}}"><button onclick="OpenConv({{Conversation.ID}})">{{MoreHTML}}</button></div>
+        <div id="WhenMore{{Conversation.ID}}" hidden><button onclick="CloseConv({{Conversation.ID}})">{{LessHTML}}</button></div>
+    </div>
+    <div id="{{Conversation.ID}}Body" hidden>
+        <div id="{{Conversation.ID}}Chats">
+            {% for Post in Conversation.Posts %}
+            <p><b>{{Post.1}}</b>:{{Post.0}}</p>
+            {% endfor %}
+        </div>
+        <input id="{{Conversation.ID}}" type="text" placeholder="{{SendHTML}} {{aqMessageHTML|replace:"au"}}" onkeypress="SendMessage(event,{{Conversation.ID}})">
+    </div>
+    </div>
+    {% endfor %}
+
+    <script src="{% static 'jQuery.js' %}"></script>
+    <script>
+        function MarkReaded(id) {
+            $.ajax({
+                type: "GET", url: "/MarkReaded", data: { ID: id }, success: function (result) {
+                    document.getElementById("ChatCount" + id).innerHTML = "<h4>{{newHTML}}: 0 </h4></div>";
+                }
+            })
+        }
+
+        function OpenConv(id) {
+            document.getElementById(id + "Body").hidden = false;
+            document.getElementById("WhenMore" + id).hidden = false;
+            document.getElementById("WhenLess" + id).hidden = true;
+            MarkReaded(id);
+        }
+           function CloseConv(id) {
+            document.getElementById(id + "Body").hidden = true;
+            document.getElementById("WhenMore" + id).hidden = true;
+            document.getElementById("WhenLess" + id).hidden = false;
+            MarkReaded(id);
+        }
+    function SendMessage(event,id) {
+        var character = event.which;
+        if (character == 13) {
+            var token = '{{csrf_token}}'
+            var Message = document.getElementById(id).value
+            $.ajax({
+                headers: { "X-CSRFToken": token }, type: "POST", url: "/SendChat", data: { ID: id, Message: Message }, success: function (result) {
+                    UpdateConversation(id)
+                    document.getElementById(id).value="";
+            }})
+            }
+    }
+    function UpdateConversation(id) {
+        Actuality = document.getElementsByName(id)[0].value
+                   $.ajax({
+                       type: "GET", url: "/UpdateConversation", data: { ID: id, LastTime: Actuality }, dataType: 'json', success: function (result) {
+                           for (i = 0, Message = result["NewPosts"][i]; i < result["NewPosts"].length; i++ , Message = result["NewPosts"][i]) {
+                               ToShow = "<p>"+"<b>" + Message[1] + "</b>" + ": " + Message[0]+"</p>"
+                               ID = id + "Chats"
+                               $(document.getElementById(ID)).append(ToShow);
+                           }
+                           document.getElementById("ChatCount" + id).innerHTML = "<h4>{{newHTML}}:" + result["NewCount"] + "</h4></div>";
+                           if (result["NewPosts"].length > 0) { document.getElementsByName(id)[0].value = result["NewPosts"][result["NewPosts"].length - 1][2] }
+                           
+
+            }})
+    }
+
+    setInterval(function () {
+        var Conversations = document.getElementsByClassName("Posts")
+        for (i = 0, Conversation = Conversations[i]; i < Conversations.length; i++ , Conversations[i]) {
+            DivId = Conversation.id
+            Id = DivId.replace("Posts", "")
+            UpdateConversation(Id)
+        }
+    }, 4000)
+    </script>

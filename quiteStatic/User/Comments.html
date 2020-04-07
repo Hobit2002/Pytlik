@@ -1,0 +1,27 @@
+{% load static %}
+    <body>
+        <h3>{{StreamHTML}}</h3>
+        <link rel="stylesheet">
+        <h3>{{CommentsHTML}}</h3>
+        <form action="NewComment">
+            <div>
+                <input name="ProjectName" value="{{ProjectName}}" type="hidden">
+                <input type="text" name="Message" placeholder="{{InformationHTML}}">
+            </div>
+            <button>{{Add}}</button>
+        </form>
+        {% for Comment in Comments %}
+        <div>
+            <p> <b>{{Comment.Speaker}}</b>:{{Comment.Content}}</p>
+            {% for Reaction in Comment.Reactions %}
+            <p><b>{{Reaction.Speaker}}</b>:{{Reaction.Content}}</p>
+            {% endfor %}
+            <form action="AnswerProductComment">
+                <input name="ProjectName" value="{{ProjectName}}" type="hidden">
+                <input name="BornTime" value="{{Comment.BornTime}}" type="hidden">
+                <input type="text" name="Reaction" placeholder="{{ReactHTML}}">
+                <button type="submit">{{SendHTML}}</button>
+            </form>
+        </div>
+        {% endfor %}
+    </body>

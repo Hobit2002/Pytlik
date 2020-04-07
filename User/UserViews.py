@@ -4,6 +4,7 @@ import json, re,time,sys,os, time,os, datetime
 from pathlib import Path
 from django.urls import path, reverse
 from django.utils.datastructures import MultiValueDictKeyError
+from django.http import HttpResponse
 from urllib.parse import urlencode
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'Dataseer'))
 import Authentication, Database, LanguageLoader, Consolewriter
@@ -15,6 +16,16 @@ def Home(request):
     try:
         MyProducts = Database.GetProducts(request)
         LanguagePack["MyProducts"] = MyProducts
+    except KeyError:
+        pass
+    try:
+        MyProjects = Database.GetProjects(request)
+        LanguagePack["MyProjects"] = MyProjects
+    except KeyError:
+        pass
+    try:
+        Notifications = Database.GetNotifications(request)
+        LanguagePack["Notifications"] = Notifications
     except KeyError:
         pass
     LanguagePack["Identity"] = "Me"
@@ -104,8 +115,8 @@ def NewProductHero(request):
     Role = ProductHero["Role"]
     HeroName = request.POST["Nickname"]
     ProductName = ProductHero["ProductName"]
-    Database.ConnectHero(request,Role,HeroName,ProductName)
     URL = CallProduct(ProductName)
+    Database.ConnectHero(request,Role,HeroName,ProductName,URL)
     return redirect(URL)
 
 def DeleteHero(request):
@@ -147,6 +158,13 @@ def DeleteTask(request):
 def CallProduct(ProductName):
     base_url = reverse('Product')
     query_string =  urlencode({'OldProductName': ProductName})
+    url = '{}?{}'.format(base_url, query_string)
+    return url
+
+def CallEntity(Specific, Entity):
+    base_url = reverse(Entity)
+    urlkey = 'Old'+Entity+'Name'
+    query_string =  urlencode({urlkey: Specific})
     url = '{}?{}'.format(base_url, query_string)
     return url
 
@@ -355,3 +373,134 @@ def CallDay(request):
     LanguagePack["Role"] = "Memory"
     Decision  = Authentication.CheckUser(request,"User\Diary.html",LanguagePack)  
     return Decision
+
+def NewProject(request):
+    Authentication.QuickCheck(request)
+    Name = request.GET["ProjectName"]
+    Database.CreateProject(request, Name)
+    return redirect('Home')
+
+def Project(request):
+    #Load Basics
+    LanguagePack = LanguageLoader.Language("Project","Czech")
+    ProjectName = request.GET["OldProjectName"]
+    BaseNameForm = re.compile(r'(.*)€' )
+    BaseNameQuest = BaseNameForm.search(ProjectName)
+    BasicName = BaseNameQuest.group()
+    PublicProjectName = BasicName[:(len(BasicName)-1)]
+    LanguagePack["ProjectName"] = ProjectName
+    LanguagePack["PublicProjectName"] = PublicProjectName
+    #Load Team
+    Team = Database.ShowProjectTeam(ProjectName)
+    LanguagePack["TeamMembers"] = Team
+    #Load Role
+    VisitorRole = Database.ProjectVisitorRole(ProjectName,request)
+    if VisitorRole == ["DubiousStranger"]:
+        return redirect('Home')
+    LanguagePack["VisitorRoles"] = VisitorRole
+    #Products
+    Products = Database.GetProjectProducts(ProjectName)
+    LanguagePack["MyProducts"] = Products
+    LanguagePack["ObserverType"] = "Project"
+    #Comments
+    Comments = Database.GetProjectComments(ProjectName)
+    LanguagePack["Comments"] = Comments
+    #Chat
+    Conversations = Database.GetProjectConversations(ProjectName,request)
+    LanguagePack["Conversations"] = Conversations
+    #GoToPage
+    Decision  = Authentication.CheckUser(request,"User\Project.html",LanguagePack)  
+    return Decision
+
+def NewProjectHero(request):
+    Authentication.QuickCheck(request)
+    ProjectName = request.POST["ProjectName"]
+    HeroName = request.POST["Nickname"]
+    URL = CallEntity(ProjectName, 'Project')
+    Database.ConnectProjectHero(request,HeroName,ProjectName,URL)
+    return redirect(URL)
+
+def DeleteProject(request):
+    ProjectName = request.GET["ProjectName"]
+    if Database.CheckProjectBoss(request,ProjectName):
+        Database.DeleteProject(ProjectName)
+
+    return redirect('Home')
+
+def DeleteProjectHero(request):
+    StringData = request.GET["ToDelete"]
+    StringData = StringData.replace("\'", "\"")
+    ProjectHero = json.loads(StringData)
+    Role = ProjectHero["Role"]
+    HeroName = ProjectHero["ExheroName"]
+    ProjectName = ProjectHero["ProjectName"]
+    if Database.CheckProjectBoss(request,ProjectName):
+        Database.UnconnectProjectHero(Role = Role,HeroName = HeroName,ProjectName = ProjectName)
+        URL = CallEntity(ProjectName,'Project')
+        return redirect(URL)
+    else:
+        return redirect('Home')
+
+def NewProjectProduct(request):
+    Authentication.QuickCheck(request)
+    ProjectName = request.GET["ProjectName"]
+    ProductName = request.GET["ProductName"]
+    Template = request.GET["ProductTemplate"]
+    ReleaseDate = request.GET["ProductRelease"]
+    AbsorbationTime = request.GET["ProductAbsorbation"]
+    ProductID = Database.CreateProduct(request, ProductName, Template, ReleaseDate, AbsorbationTime)
+    Database.IntroduceTeam(ProjectName,ProductID)
+    Database.CreatProductOfProject(ProjectName,ProductID)
+    URL = CallEntity(ProjectName,'Project')
+    return redirect(URL)
+
+def NewComment(request):
+    Authentication.QuickCheck(request)
+    ProjectName = request.GET["ProjectName"]
+    CommentContent = request.GET["Message"]
+    ProductID = Database.CreateProjectComment(request, ProjectName, CommentContent)
+    URL = CallEntity(ProjectName,'Project')
+    return redirect(URL)
+
+def AnswerProductComment(request):
+    Authentication.QuickCheck(request)
+    ProjectName = request.GET["ProjectName"]
+    Reaction = request.GET["Reaction"]
+    BornTime = request.GET["BornTime"]
+    ProductID = Database.AnswerProjectComment(request, ProjectName, Reaction,BornTime)
+    URL = CallEntity(ProjectName,'Project')
+    return redirect(URL)
+
+def DeleteNotification(request):
+    Authentication.QuickCheck(request)
+    ID = request.GET["ID"]
+    Database.DeleteNotification(request,ID)
+    return redirect('Home')
+
+def MarkNotificationAsRead(request):
+    ID = request.GET["ID"]
+    Database.ReadNotification(request,ID)
+    return HttpResponse("Done!")
+
+def SendChat(request):
+    Authentication.QuickCheck(request)
+    ConversationID = request.POST["ID"]
+    Content = request.POST["Message"]
+    Database.AddChatMessage(request, ConversationID, Content)
+    Database.UpdateConersationLastLook(ConversationID,request)
+    return HttpResponse("Done!")
+
+def UpdateConversation(request):
+    Authentication.QuickCheck(request)
+    ConversationID = request.GET["ID"]
+    LastTime = request.GET["LastTime"]
+    NewPosts = Database.LoadChat(ConversationID, LastTime)
+    UserID = Authentication.GetID(request)
+    NewPostCount = Database.UnreadChatsCount(ConversationID,UserID)
+    Response = {"NewCount":NewPostCount,"NewPosts":NewPosts}
+    return HttpResponse(json.dumps(Response),content_type="application/json")
+
+def MarkReaded(request):
+    ConversationID= request.GET["ID"]
+    Database.UpdateConersationLastLook(ConversationID,request)
+    return HttpResponse("Done!")

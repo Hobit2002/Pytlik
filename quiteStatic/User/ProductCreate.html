@@ -24,7 +24,7 @@
                     <input type="text" name="Nickname" placeholder="{{NickNnameHTML}}">
                 </div>
                 <button value="{'Role':'TeamMember','ProductName':'{{ProductName}}'}" name="ProductHero">{{Add}}</button>
-            </form,
+            </form>
             {% elif "{'Client'}" or "{'TeamMember'}" in VisitorRoles %}
             {% for TeamMember in TeamMembers %}
             <p>{{TeamMember}}</p>
@@ -129,27 +129,6 @@
         </div>
         
         <script>
-            function OpenWhatItTakes() {
-                    var Registred = sessionStorage.getItem("RegistredTasks")
-                if (Registred==null) { var Registred = [] }
-                {% for Task in Tasks %}
-                var Included = Registred.includes("{{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}")
-                if (!Included) {
-                    Registred.push("{{ Task.RealTask|cut:" "|cut:" / "|cut:", " }}");
-                    {{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}Less()
-                } else {
-                    State = sessionStorage.getItem("{{Task.RealTask}}")
-                    if (State == "Closed") {
-                        {{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}Less()
-                    } else {
-                         {{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}()
-                    }
-                }
-                {% endfor %}
-                sessionStorage.setItem("RegistredTasks", Registred)
-
-            }
-
         {% for Task in Tasks %}
                          
          
@@ -166,7 +145,31 @@
              sessionStorage.setItem("{{Task.RealTask}}", "Closed");
             return document.getElementById("{{ Task.RealTask }}").innerHTML = ToInner
             }
-        {% endfor %}
+            {% endfor %}
+
+        function OpenWhatItTakes() {
+            var Registred = sessionStorage.getItem("RegistredTasks")
+            if (Registred == null || Registred == '') { var Registred = [] }
+            else {
+                Registred = JSON.parse(Registred)
+            }
+                {% for Task in Tasks %}
+                var Included = Registred.includes("{{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}")
+            if (!Included) {
+                    Registred.push("{{ Task.RealTask|cut:" "|cut:" / "|cut:", " }}");
+                    {{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}Less()
+                } else {
+                    State = sessionStorage.getItem("{{Task.RealTask}}")
+                    if (State == "Closed") {
+                        {{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}Less()
+                    } else {
+                         {{ Task.RealTask|cut:" "|cut:"/"|cut:"," }}()
+                    }
+                }
+                {% endfor %}
+                sessionStorage.setItem("RegistredTasks", JSON.stringify(Registred))
+
+            }
         </script>
 
 

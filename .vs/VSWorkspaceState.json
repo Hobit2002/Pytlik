@@ -1,16 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Dataseer",
-    "\\languages",
+    "\\catholiclyStatic",
+    "\\catholiclyStatic\\admin",
+    "\\catholiclyStatic\\admin\\img",
+    "\\Niemand",
     "\\Pytlik",
     "\\quiteStatic",
-    "\\quiteStatic\\Registrationstuff",
     "\\quiteStatic\\User",
     "\\registrationstuff",
-    "\\User",
-    "\\User\\templatetags"
+    "\\User"
   ],
-  "SelectedNode": "\\User\\UserViews.py",
+  "SelectedNode": "\\Dataseer\\console.txt",
   "PreviewInSolutionExplorer": false
 }

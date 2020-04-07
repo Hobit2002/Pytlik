@@ -1,0 +1,42 @@
+{% load static %}
+<h2>{{NotificationsHTML}}</h2>
+<style>
+    .unreadMessage {
+        width: 100%;
+        padding: 12px;
+        background-color: coral;
+        color: white;
+        font-size: 17px;
+        box-sizing: border-box;
+    }
+
+    .Nothing {
+    }
+</style>
+{% for Notification in Notifications %}
+<form action="DeleteNotification">
+    <input type="hidden" name="ID" value="{{Notification.ID}}">
+    <div id="{{Notification.ID}}" class={% if Notification.Sawn == 0 %}"unreadMessage"{% endif %}>
+        <b>{{Notification.Head}}</b>
+        <div>{{Notification.Content}}</div>
+        <button type="submit">{{Delete}}</button>
+    </div>
+</form>
+        {% endfor %}
+
+<script src="{% static 'jQuery.js' %}"></script>
+<script>
+    {% for Notification in Notifications %}
+    document.getElementById("{{Notification.ID}}").addEventListener("click", function (event) {
+        {% if Notification.Redirect != null %}
+        window.location.href = '{{Notification.Redirect}}'
+        {% endif %}
+//Send message to server
+
+        $.ajax({
+            type: "GET", url:"/MarkNotificationAsRead", data: { ID: "{{Notification.ID}}" }, success: function (result) {
+                $document.getElementById("{{Notification.ID}}").addClass("Nothing");
+            }})
+}, true)
+    {% endfor %}
+</script>

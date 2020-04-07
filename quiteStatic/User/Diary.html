@@ -9,7 +9,7 @@
         <label for='TypeOfTemplate'>{{BuildHTML}} {{OnHTML}} {{aqTemplateHTML}}:</label><select name="TypeOfTemplate">
             <option value=""></option>
             {% for TemplateID,TemplateName in Templates.items %}
-            <option value="{{TemplateID|cut:" "|cut:"/"|cut:"," }}">{{TemplateName.0.0}}</option>
+            <option value="{{TemplateID|cut:" "|cut:"/"|cut:"," |cut:"."|cut:"-"}}">{{TemplateName.0.0}}</option>
             {% endfor %}
         </select>
 
@@ -31,7 +31,7 @@
                     </p>
                     <select name="TypeOfActivity" onchange="AddInfo('')">
                         {% for Opinion in DiaryData.Activities.keys %}
-                        <option value='{"Javascript":"{{Opinion|cut:" "|cut:"/"|cut:","}}","Python":"{{Opinion}}"}'>{{Opinion}}</option>
+                        <option value='{"Javascript":"{{Opinion|cut:" "|cut:"/"|cut:","|cut:"."|cut:"-"}}","Python":"{{Opinion}}"}'>{{Opinion}}</option>
                         {% endfor %}
                     </select>
                     <div id="MoreQuestions">
@@ -155,7 +155,7 @@
                "</p>"+
                "<select name='TypeOfActivity" + String(ChapID)+ "' onchange='AddInfo("+String(ChapID)+")' )>"+
                    "{% for Opinion in DiaryData.Activities.keys %}"+
-                   "<option value='{\"Javascript\":\"{{Opinion|cut:' '|cut:'/'|cut:','}}\",\"Python\":\"{{Opinion}}\"}'>{{Opinion}}</option>"+
+                   "<option value='{\"Javascript\":\"{{Opinion|cut:' '|cut:'/'|cut:','|cut:'.'|cut:'-'}}\",\"Python\":\"{{Opinion}}\"}'>{{Opinion}}</option>"+
                    "{% endfor %}"+
                        "</select>" +
                "<div id='MoreQuestions" + String(ChapID)+"'>"+
@@ -168,7 +168,7 @@
 
      var Expansions = {
       {% for Overall, Details in DiaryData.Activities.items %}
-      {{ Overall|cut:" "|cut:"/"|cut:"," }} : ""{% for Detail in Details %}{% if Detail.1|length > 1 %}
+      {{ Overall|cut:" "|cut:"/"|cut:","|cut:"."|cut:"-"}} : ""{% for Detail in Details %}{% if Detail.1|length > 1 %}
          +"<select name='{{Detail.1}}PeQuoRin'>"+
          {% for SoSmall in Detail %}
          "<option value='{{SoSmall}}'>{{SoSmall}}</option>"+
@@ -185,7 +185,7 @@
            
             var TemplateIdentificator = {
         {% for TemplateID, TemplateName in Templates.items %}
-            {{TemplateID|cut:" "|cut:"/"|cut:","}}: "{{TemplateName.1}}",
+            {{TemplateID|cut:" "|cut:"/"|cut:","|cut:"."|cut:"-"}}: "{{TemplateName.1}}",
                 {% endfor %}
             {% if Role == "Memory" %}
             DayHistory: "{{DayHistory}}",
@@ -195,7 +195,7 @@
 
             var Concretization = {
             {% for Opinion,Details in DiaryData.Activities.items %}
-            {{ Opinion|cut:" "|cut:"/"|cut:"," }}: [
+            {{ Opinion|cut:" "|cut:"/"|cut:","|cut:"."|cut:"-" }}: [
                 {% for Detail in Details %}{% if Detail.1|length > 1 %}
             '{{Detail.1}}',
             {% endif %}{% endfor %} ],

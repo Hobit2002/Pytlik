@@ -1,0 +1,15 @@
+{% load static %}
+<body onload="FillIn(document)">
+    <h3>{{MyProjectHTML}}</h3>
+    <link rel="stylesheet" href="{%static 'Ministyles.css' %}">
+    {% for Project in MyProjects %}
+    <form method="get" action="Project"><button type="submit" name="OldProjectName" value="{{Project.DatabaseName}}"><p>{{Project.BasicName}}</p></button></form>
+    {% endfor %}
+    <h3>{{NewHTML}} {{AProjectHTML}}</h3>
+    <form action="NewProject">
+        <div id="InfoFrame">
+            <input type="text" name="ProjectName" placeholder="{{Name}}">
+        </div>
+        <button>{{Add}}</button>
+    </form>
+</body>

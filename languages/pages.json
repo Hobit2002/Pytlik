@@ -23,7 +23,12 @@
     "NewHTML",
     "SearchHTML",
     "DiaryHTML",
-    "CalendarHTML"
+    "CalendarHTML",
+    "MyProjectHTML",
+    "AProjectHTML",
+    "AProductHTML",
+    "NotificationsHTML",
+    "Delete"
   ],
   "Settings": [ "Save", "Logout", "MaleHTML", "FemaleHTML", "OtherSexHTML", "SearchHTML", "DiaryHTML", "CalendarHTML" ],
   "Passives": [ "Add", "Nickname", "Email", "Info", "Logout", "Products", "Home", "Delete", "SearchHTML", "DiaryHTML", "CalendarHTML" ],
@@ -77,6 +82,37 @@
     "FridayHTML",
     "SaturdayHTML",
     "SundayHTML"
+  ],
+  "Project": [
+    "NickNnameHTML",
+    "Logout",
+    "Delete",
+    "Add",
+    "Home",
+    "TeamHTML",
+    "SelfDeleteHTML",
+    "Save",
+    "SearchHTML",
+    "DiaryHTML",
+    "AmongHTML",
+    "CalendarHTML",
+    "AProjectHTML",
+    "TemplateHTML",
+    "ReleaseTimeHTML",
+    "AbsorbTimeHTML",
+    "NewHTML",
+    "newHTML",
+    "AProductHTML",
+    "Name",
+    "StreamHTML",
+    "InformationHTML",
+    "CommentsHTML",
+    "MyProductHTML",
+    "ReactHTML",
+    "SendHTML",
+    "ChatHTML",
+    "aqMessageHTML",
+    "LessHTML",
+    "MoreHTML"
   ]
-
 }

@@ -14,13 +14,31 @@
             </div>
             <form action="settings"><button>{{Change}}</button></form>
         </div>
-        <div>
-        {% include 'User\ProductList.html' %}
+        <button type="button" name="ProjectList" onclick="ShowList('ProjectList','ProductList','Notifications')">{{MyProjectHTML}}</button>
+        <button type="button" name="ProductList" onclick="ShowList('ProductList', 'ProjectList', 'Notifications')">{{MyProductHTML}}</button>
+        <button type="button" name="Notifications" onclick="ShowList('Notifications','ProductList','ProjectList')" disabled>{{NotificationsHTML}}</button>
+        <div id="ProductList" hidden>
+            {% include 'User\ProductList.html' %}
+        </div>
+        <div id="ProjectList" hidden>
+            {% include 'User\ProjectList.html' %}
+        </div>
+        <div id="Notifications">
+            {% include 'User\Notifications.html' %}
         </div>
         <div>
-        <form action="MyPasive"><button>{{PasiveUsers}}</button></form>
+            <form action="MyPasive"><button>{{PasiveUsers}}</button></form>
         </div>
         <script>
+                function ShowList(ActId, PasId,PasId2) {
+                    document.getElementsByName(ActId)[0].disabled = true
+                    document.getElementsByName(PasId)[0].disabled = false
+                    document.getElementsByName(PasId2)[0].disabled = false
+                    document.getElementById(ActId).hidden = false
+                    document.getElementById(PasId).hidden = true
+                    document.getElementById(PasId2).hidden = true
+                }
+
             {% if Identity == "Me" %}
 function FillIn(document) {
     if (Object.is(Vertify(), true)) {

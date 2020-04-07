@@ -66,7 +66,6 @@ def QuickCheck(request):
         LanguagePack = LanguageLoader.Language("AboutUs","Czech")
         return render(request,"Niemand\AboutUs.html", LanguagePack)
 
-
 def BuildPack (ID, request, LanguagePack):
     try:
         Boolean = request.COOKIES["MetaInfo"]

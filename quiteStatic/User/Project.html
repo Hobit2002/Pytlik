@@ -1,0 +1,62 @@
+{% extends "activeframe.html" %}
+{% block content %}
+{% load static %}
+{% load CustFC %}
+
+<div>
+    <h1>{{PublicProjectName}}</h1>
+    {% if "{'Boss'}" in VisitorRoles %}
+    <form action="DeleteProject"> <button type="submit" name="ProjectName" value="{{ProjectName}}">{{Delete}} {{AProjectHTML}}</button></form>
+    {% endif %}
+</div>
+<div>
+    <h3>{{TeamHTML}}</h3>
+    {% if "{'Boss'}" in VisitorRoles %}
+    {% for TeamMember in TeamMembers %}
+    <form action="DeleteProjectHero"> <p>{{TeamMember}}<button type="submit" name="ToDelete" value="{'Role':'TeamMember','ProjectName':'{{ProjectName}}', 'ExheroName':'{{TeamMember}}'}">{{Delete}}</button></p></form>
+    {% endfor %}
+    {% elif "{'TeamMember'}" in VisitorRoles %}
+    {% for TeamMember in TeamMembers %}
+    <p>{{TeamMember}}</p>
+    {% endfor %}
+    {% endif %}
+    <form action="NewProjectHero" , method="post">
+        {% csrf_token %}
+        <div id="InfoFrame">
+            <input type="text" name="Nickname" placeholder="{{NickNnameHTML}}">
+        </div>
+        <button value="{{ProjectName}}" name="ProjectName">{{Add}}</button>
+    </form>
+    {% if "{'TeamMember'}" in VisitorRoles %}
+    <form action="SelfDeleteProjectHero"> <button type="submit" name="ToDelete" value="{'Role':'TeamMember','ProjectName':'{{ProjectName}}'}">{{SelfDeleteHTML}}</button></form>
+    {% endif %}
+</div>
+<button type="button" name="Stream" onclick="ShowList('Stream','ProductList','Chat')" disabled>{{StreamHTML}}</button>
+<button type="button" name="ProductList" onclick="ShowList('ProductList','Stream','Chat')">{{MyProductHTML}}</button>
+<button type="button" name="Chat" onclick="ShowList('Chat','ProductList','Stream')">{{ChatHTML}}</button>
+<div id="ProductList" hidden>
+    {% include 'User\ProductList.html' %}
+</div>
+<div id="Stream">
+    {% include 'User\Comments.html' %}
+</div>
+<div id="Chat" hidden>
+    {% include 'User\Chat.html' %}
+</div>
+<div>
+    <form action="Home"><button>{{Home}}</button></form>
+</div>
+
+<script>
+             function ShowList(ActId, PasId,PasId2) {
+                    document.getElementsByName(ActId)[0].disabled = true
+                    document.getElementsByName(PasId)[0].disabled = false
+                    document.getElementsByName(PasId2)[0].disabled = false
+                    document.getElementById(ActId).hidden = false
+                    document.getElementById(PasId).hidden = true
+                    document.getElementById(PasId2).hidden = true
+                }</script>
+
+</body >
+
+        {% endblock %}

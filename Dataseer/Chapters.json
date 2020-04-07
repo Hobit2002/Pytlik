@@ -56,7 +56,10 @@
         "Asijské",
         "Polévka",
         "Rohlík/chleba/bageta",
-        "Sladké"
+        "Sladké",
+        "Cerealie",
+        "Jogurt/tvaroh",
+        "Školní 1(maso,omáèka,pøíloha)"
       ],
       "Kvalita"
     ],
@@ -67,7 +70,7 @@
     ],
     "Pohybová aktivita doma": [ [ "Pingpong", "Cvièení" ] ],
     "Uèení se do školy": [
-      [ "Zemìpis", "Dìjepis", "Pøírodopis/Biologie", "Matematika", "Fyzika", "Obèanská výchova/ZSV", "Èeština", "Chemie" ]
+      [ "Zemìpis", "Dìjepis", "Pøírodopis/Biologie", "Matematika", "Fyzika", "Obèanská výchova/ZSV", "Èeština", "Chemie","Cizí jazyky" ]
     ],
     "Kutilství a jiné tvoøivé aktivity": [
       [ "Výtvarnièení", "Skládání hudby", "Psaní", "Programování", "Práce se døevem", "Spravování spotøebièù","Hra na hudební nástroj" ]
